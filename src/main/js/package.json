@@ -1,0 +1,45 @@
+{
+	"name": "studidbv2",
+	"version": "0.0.1",
+	"private": true,
+	"dependencies": {
+      "recharts": "2.15.2",
+      "lucide-react": "0.487.0",
+      "axios": "^1.7.7",
+      "markerjs2": "^2.32.2",
+      "npm": "^10.8.3",
+      "react": "^18.3.0",
+      "react-dom": "^18.3.0",
+      "react-icons": "^5.2.1",
+      "react-jwt": "^1.2.2",
+      "react-router-dom": "^6.23.0",
+      "swr": "^2.2.5"
+	},
+	"scripts": {
+		"webpack:dev": "webpack --config webpack.config.js --env development",
+		"webpack:prod": "webpack --config webpack.config.js",
+		"watch": "webpack --config webpack.config.js --watch --env development"
+	},
+	"devDependencies": {
+		"@babel/core": "^7.24.0",
+		"@babel/preset-env": "^7.24.0",
+		"@babel/preset-react": "^7.24.0",
+		"@babel/preset-typescript": "^7.24.0",
+		"@types/node": "^22.5.4",
+		"@types/react": "^18.3.0",
+		"@types/react-dom": "^18.3.0",
+		"@types/react-router": "^5.1.20",
+		"@types/react-router-dom": "^5.3.0",
+		"autoprefixer": "^10.4.19",
+		"babel-loader": "^9.1.3",
+		"css-loader": "^7.1.2",
+		"postcss": "^8.4.38",
+		"postcss-import": "^16.1.0",
+		"postcss-loader": "^8.1.1",
+		"style-loader": "^4.0.0",
+		"tailwindcss": "^3.4.9",
+		"typescript": "^5.4.5",
+		"webpack": "^5.91.0",
+		"webpack-cli": "^5.1.4"
+	}
+}

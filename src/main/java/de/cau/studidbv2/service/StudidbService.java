@@ -34,9 +34,8 @@ public class StudidbService {
     public void run() {
         try {
             // this.performRequest(username, password);
-            File file = new File("leistungen.html");
-            Document doc = Jsoup.parse(file, "UTF-8", "");
-            LOG.info(Arrays.toString(parseResults(doc).toArray()));
+            //Document file = getExamResultsDocument(username, password);
+            //LOG.info(Arrays.toString(parseResults(file).toArray()));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

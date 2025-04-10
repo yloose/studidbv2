@@ -2,10 +2,20 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.4.4'
 	id 'io.spring.dependency-management' version '1.1.7'
+    id "com.github.node-gradle.node" version "7.0.2"
 }
 
 group = 'de.cau'
 version = '0.0.1-SNAPSHOT'
+
+def jsSrcDir = "$projectDir/src/main/js"
+def isProd = project.hasProperty("prod")
+
+node {
+    version = "20.17.0"
+    download = true
+    nodeProjectDir = file("${jsSrcDir}")
+}
 
 java {
 	toolchain {
@@ -30,3 +40,24 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+task webpack(type: NpmTask, dependsOn: "npmInstall") {
+    args = isProd ? ["run", "webpack:prod"] : ["run", "webpack:dev"]
+    inputs.files(fileTree("src/main/js"))
+    outputs.dir("build/resources/main/static/built")
+}
+task webpackWatch(type: NpmTask) {
+    args = ["run", "watch"]
+}
+task webpackClean(type: Delete) {
+    delete "build/resources/main/static/built"
+}
+clean.dependsOn webpackClean
+
+task npmClean (type: Delete) {
+    delete "${jsSrcDir}/node_modules"
+}
+
+processResources.dependsOn "webpack"
+
+task cleanAll(dependsOn: [clean, npmClean] )
