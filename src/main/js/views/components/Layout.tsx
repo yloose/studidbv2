@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// File: src/main/js/views/components/Layout.tsx
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/AuthProvider';
 import { TrendingUp, Users, Award, User, LogOut, Menu, X } from 'lucide-react';
@@ -24,9 +25,14 @@ export const NeuButton = ({ children, active, onClick, className = '' }) => (
     </button>
 );
 
+// Global layout state - ensures consistent sidebar state across all components
+let globalIsHovered = false;
+
 // Layout component
 export const Layout = ({ children }) => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    // Use the global hover state to prevent resetting on route changes
+    const [isHovered, setIsHovered] = useState(globalIsHovered);
     const location = useLocation();
     const { logout, user } = useAuth();
     const navigate = useNavigate();
@@ -47,59 +53,88 @@ export const Layout = ({ children }) => {
         navigate('/login');
     };
 
+    // Handle hover effect
+    const handleMouseEnter = () => {
+        setIsHovered(true);
+        globalIsHovered = true;
+    };
+
+    const handleMouseLeave = () => {
+        setIsHovered(false);
+        globalIsHovered = false;
+    };
+
+    // Force update the hover state when location changes
+    useEffect(() => {
+        setIsHovered(globalIsHovered);
+    }, [location.pathname]);
+
     return (
         <div className="min-h-screen bg-gray-100 flex">
             {/* Sidebar - Desktop */}
-            <aside className="hidden md:flex flex-col w-64 bg-white p-6 shadow-xl">
-                <div className="mb-10">
-                    <h1 className="text-2xl font-bold text-blue-600">UniStats</h1>
-                    <p className="text-gray-500 text-sm">Student Portal</p>
+            <aside
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+                className={`hidden md:flex flex-col fixed h-full bg-white shadow-xl z-20 transition-all duration-300 ${
+                    isHovered ? 'w-64 p-6' : 'w-16 py-6 px-2'
+                }`}
+            >
+                <div className={`mb-10 ${isHovered ? '' : 'flex justify-center'}`}>
+                    {isHovered ? (
+                        <>
+                            <h1 className="text-2xl font-bold text-blue-600">UniStats</h1>
+                            <p className="text-gray-500 text-sm">Student Portal</p>
+                        </>
+                    ) : (
+                        <div className="w-10 h-10 flex items-center justify-center rounded-full bg-blue-600 text-white font-bold">
+                            U
+                        </div>
+                    )}
                 </div>
 
                 <nav className="flex-1 space-y-4">
-                    <Link to="/" className={`flex items-center gap-2 p-4 rounded-xl transition-all duration-300 
+                    <Link to="/" className={`flex items-center ${isHovered ? 'gap-2' : 'justify-center'} p-4 rounded-xl transition-all duration-300 
             ${activeSection === 'dashboard'
                         ? 'bg-blue-50 text-blue-600 shadow-[inset_4px_4px_8px_#d1d1d1,_inset_-4px_-4px_8px_#ffffff]'
                         : 'bg-gray-100 shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff] hover:shadow-[2px_2px_5px_#d1d1d1,_-2px_-2px_5px_#ffffff]'}`
                     }>
-                        <TrendingUp size={20} />
-                        <span>Dashboard</span>
+                        <TrendingUp size={isHovered ? 20 : 24} />
+                        {isHovered && <span>Dashboard</span>}
                     </Link>
-                    <Link to="/grades" className={`flex items-center gap-2 p-4 rounded-xl transition-all duration-300 
+                    <Link to="/grades" className={`flex items-center ${isHovered ? 'gap-2' : 'justify-center'} p-4 rounded-xl transition-all duration-300 
             ${activeSection === 'grades'
                         ? 'bg-blue-50 text-blue-600 shadow-[inset_4px_4px_8px_#d1d1d1,_inset_-4px_-4px_8px_#ffffff]'
                         : 'bg-gray-100 shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff] hover:shadow-[2px_2px_5px_#d1d1d1,_-2px_-2px_5px_#ffffff]'}`
                     }>
-                        <Award size={20} />
-                        <span>Grades</span>
+                        <Award size={isHovered ? 20 : 24} />
+                        {isHovered && <span>Grades</span>}
                     </Link>
-                    <Link to="/attendance" className={`flex items-center gap-2 p-4 rounded-xl transition-all duration-300 
+                    <Link to="/attendance" className={`flex items-center ${isHovered ? 'gap-2' : 'justify-center'} p-4 rounded-xl transition-all duration-300 
             ${activeSection === 'attendance'
                         ? 'bg-blue-50 text-blue-600 shadow-[inset_4px_4px_8px_#d1d1d1,_inset_-4px_-4px_8px_#ffffff]'
                         : 'bg-gray-100 shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff] hover:shadow-[2px_2px_5px_#d1d1d1,_-2px_-2px_5px_#ffffff]'}`
                     }>
-                        <Users size={20} />
-                        <span>Attendance</span>
+                        <Users size={isHovered ? 20 : 24} />
+                        {isHovered && <span>Attendance</span>}
                     </Link>
-                    <Link to="/profile" className={`flex items-center gap-2 p-4 rounded-xl transition-all duration-300 
+                    <Link to="/profile" className={`flex items-center ${isHovered ? 'gap-2' : 'justify-center'} p-4 rounded-xl transition-all duration-300 
             ${activeSection === 'profile'
                         ? 'bg-blue-50 text-blue-600 shadow-[inset_4px_4px_8px_#d1d1d1,_inset_-4px_-4px_8px_#ffffff]'
                         : 'bg-gray-100 shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff] hover:shadow-[2px_2px_5px_#d1d1d1,_-2px_-2px_5px_#ffffff]'}`
                     }>
-                        <User size={20} />
-                        <span>Profile</span>
+                        <User size={isHovered ? 20 : 24} />
+                        {isHovered && <span>Profile</span>}
                     </Link>
                 </nav>
 
                 <div className="mt-auto pt-6">
-                    <NeuButton
+                    <button
                         onClick={handleLogout}
-                        active={false}
-                        className="w-full justify-center text-red-500"
+                        className={`flex items-center ${isHovered ? 'gap-2' : 'justify-center'} p-4 rounded-xl transition-all duration-300 w-full text-red-500 bg-gray-100 shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff]`}
                     >
-                        <LogOut size={20} />
-                        <span>Logout</span>
-                    </NeuButton>
+                        <LogOut size={isHovered ? 20 : 24} />
+                        {isHovered && <span>Logout</span>}
+                    </button>
                 </div>
             </aside>
 
@@ -188,7 +223,9 @@ export const Layout = ({ children }) => {
             )}
 
             {/* Main content */}
-            <main className="flex-1 p-4 md:p-8 md:pt-6 md:ml-64 mt-16 md:mt-0">
+            <main className={`flex-1 p-4 md:p-8 md:pt-6 transition-all duration-300 ${
+                isHovered ? 'md:ml-64' : 'md:ml-16'
+            } mt-16 md:mt-0`}>
                 <header className="mb-8">
                     <h2 className="text-2xl font-bold text-gray-700">
                         {activeSection.charAt(0).toUpperCase() + activeSection.slice(1)}
