@@ -1,49 +1,100 @@
-import axios from "axios";
-import { useJwt } from "react-jwt";
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+// File: src/main/js/hooks/AuthProvider.tsx
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-export const AuthContext = createContext<any>(null);
+interface AuthContextType {
+    isAuthenticated: boolean;
+    loading: boolean;
+    user: any | null;
+    login: (credentials: { username: string; password: string }) => Promise<void>;
+    logout: () => void;
+}
 
-export const AuthProvider = ({ children }) => {
-    const [token, setToken_] = useState(localStorage.getItem("token"));
-    const { decodedToken, isExpired } = useJwt(token);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-    const setToken = (newToken) => {
-        setToken_(newToken);
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState<any | null>(null);
+
+    useEffect(() => {
+        // Check if user is already logged in
+        const checkAuth = async () => {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (token) {
+                    // Verify token with backend
+                    // For demo, just simulate authentication
+                    setUser({
+                        name: "Alex Johnson",
+                        studentId: "UNI2025124",
+                        program: "Computer Science",
+                        year: 3,
+                        gpa: 3.8
+                    });
+                    setIsAuthenticated(true);
+                }
+            } catch (error) {
+                localStorage.removeItem('authToken');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        checkAuth();
+    }, []);
+
+    const login = async (credentials: { username: string; password: string }) => {
+        setLoading(true);
+        try {
+            // In production, this would call your Spring backend
+            // const response = await fetch('/api/auth/login', {
+            //   method: 'POST',
+            //   headers: { 'Content-Type': 'application/json' },
+            //   body: JSON.stringify(credentials),
+            // });
+            // const data = await response.json();
+
+            // For demo, simulate successful login
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // Store token
+            localStorage.setItem('authToken', 'demo-token');
+
+            // Set user data
+            setUser({
+                name: "Alex Johnson",
+                studentId: "UNI2025124",
+                program: "Computer Science",
+                year: 3,
+                gpa: 3.8
+            });
+            setIsAuthenticated(true);
+        } catch (error) {
+            throw new Error('Login failed');
+        } finally {
+            setLoading(false);
+        }
     };
 
-    useEffect(() => {
-        if (isExpired)
-            setToken(null);
-    }, [isExpired]);
-
-    useEffect(() => {
-        if (token) {
-            axios.defaults.headers.common["Authorization"] = "Bearer " + token;
-            localStorage.setItem('token',token);
-        } else {
-            delete axios.defaults.headers.common["Authorization"];
-            localStorage.removeItem('token')
-        }
-    }, [token]);
-
-    const contextValue = useMemo(
-        () => ({
-            token,
-            decodedToken,
-            isExpired,
-            setToken,
-        }),
-        [token, decodedToken, isExpired]
-    );
+    const logout = () => {
+        localStorage.removeItem('authToken');
+        setUser(null);
+        setIsAuthenticated(false);
+    };
 
     return (
-        <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
+        <AuthContext.Provider value={{ isAuthenticated, loading, user, login, logout }}>
+            {children}
+        </AuthContext.Provider>
     );
 };
 
 const useAuth = () => {
-    return useContext(AuthContext);
+    const context = useContext(AuthContext);
+    if (context === undefined) {
+        throw new Error('useAuth must be used within an AuthProvider');
+    }
+    return context;
 };
 
 export default useAuth;

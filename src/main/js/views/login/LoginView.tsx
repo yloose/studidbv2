@@ -1,98 +1,106 @@
-import React, {useCallback, useEffect, useState} from "react";
-import axios from "axios";
-import useAuth from "../../hooks/AuthProvider";
-import {Alert, Button, TextField} from "@mui/material";
-import {useNavigate} from "react-router-dom";
-import {UserRole} from "../../types/UserRole";
+// File: src/main/js/views/login/LoginView.tsx
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import useAuth from '../../hooks/AuthProvider';
 
-const LoginView = function () {
-    const [loginFormState, setLoginFormState] = useState({username: "", password: ""});
-    const [error, setError] = useState(false);
-
-    const {decodedToken, setToken} = useAuth();
+const LoginView = () => {
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const { login, isAuthenticated } = useAuth();
     const navigate = useNavigate();
 
-    useEffect(() => {
-        decodedToken != null && navigate(decodedToken.role as UserRole === UserRole.ROLE_ADMIN ? "/users" : "/buildings");
-    }, [decodedToken]);
+    // Redirect if already authenticated
+    React.useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/');
+        }
+    }, [isAuthenticated, navigate]);
 
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError('');
+        setIsLoading(true);
 
-    const handleSubmit = useCallback(
-        (e) => {
-            e.preventDefault();
-
-            axios.post("/api/auth/login", loginFormState)
-                .then((res) => {
-                    setToken(res.data);
-                })
-                .catch((err) => {
-                    if (err.response.status === 401) {
-                        setError(true);
-                        setTimeout(() => setError(false), 10000)
-                    } else {
-                        alert("Login Failure");
-                    }
-                });
-        },
-        [loginFormState, decodedToken]
-    );
+        try {
+            await login({ username, password });
+            navigate('/');
+        } catch (err) {
+            setError('Invalid username or password');
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
-        <div className="flex flex-col justify-center items-center min-h-screen">
-            <form
-                className="flex flex-col justify-center items-center gap-4 p-6 bg-white shadow-md rounded-lg max-w-md w-full"
-                onSubmit={handleSubmit}
-            >
-                <img
-                    src="/images/GoldenPathLogo.png"
-                    alt="Golden Path Logo"
-                    className="mb-8 w-48 h-auto"
-                    style={{maxWidth: "100%", objectFit: "contain"}}
-                />
-                <div
-                    className={`transition-opacity duration-500 ${
-                        error ? "opacity-100" : "opacity-0"
-                    }`}
-                >
-                    {error && (
-                        <Alert severity="error" className="my-4">
-                            Incorrect username or password!
-                        </Alert>
-                    )}
+        <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+            <div className="w-full max-w-md bg-white rounded-xl p-8 shadow-[8px_8px_16px_#d1d1d1,_-8px_-8px_16px_#ffffff]">
+                <div className="text-center mb-8">
+                    <h1 className="text-3xl font-bold text-blue-600">UniStats</h1>
+                    <p className="text-gray-500 mt-2">Student Portal Login</p>
                 </div>
-                <TextField
-                    id="username"
-                    label="Username"
-                    variant="outlined"
-                    fullWidth
-                    value={loginFormState.username}
-                    onChange={(e) =>
-                        setLoginFormState({...loginFormState, username: e.target.value})
-                    }
-                    className="mb-4"
-                />
-                <TextField
-                    id="password"
-                    label="Password"
-                    type="password"
-                    variant="outlined"
-                    fullWidth
-                    value={loginFormState.password}
-                    onChange={(e) =>
-                        setLoginFormState({...loginFormState, password: e.target.value})
-                    }
-                />
-                <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    className="mt-4 self-end w-min"
-                >
-                    Login
-                </Button>
-            </form>
+
+                {error && (
+                    <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-lg text-center">
+                        {error}
+                    </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <div>
+                        <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+                            Username
+                        </label>
+                        <input
+                            id="username"
+                            type="text"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            className="w-full p-3 bg-gray-50 rounded-lg shadow-[inset_3px_3px_6px_#d1d1d1,_inset_-3px_-3px_6px_#ffffff] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter your student ID"
+                            required
+                        />
+                    </div>
+
+                    <div>
+                        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                            Password
+                        </label>
+                        <input
+                            id="password"
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="w-full p-3 bg-gray-50 rounded-lg shadow-[inset_3px_3px_6px_#d1d1d1,_inset_-3px_-3px_6px_#ffffff] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter your password"
+                            required
+                        />
+                    </div>
+
+                    <div>
+                        <button
+                            type="submit"
+                            disabled={isLoading}
+                            className={`w-full p-3 bg-blue-600 text-white rounded-lg transition-all duration-300 
+                ${isLoading
+                                ? 'opacity-70 cursor-not-allowed'
+                                : 'shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff] hover:bg-blue-700 hover:shadow-[2px_2px_5px_#d1d1d1,_-2px_-2px_5px_#ffffff]'
+                            }`}
+                        >
+                            {isLoading ? 'Logging in...' : 'Login'}
+                        </button>
+                    </div>
+                </form>
+
+                <div className="mt-6 text-center">
+                    <p className="text-sm text-gray-500">
+                        For demonstration, use any credentials
+                    </p>
+                </div>
+            </div>
         </div>
     );
-}
+};
 
 export default LoginView;
