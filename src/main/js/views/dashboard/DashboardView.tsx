@@ -17,6 +17,8 @@ import {
     ResponsiveContainer,
     RadarChart, PolarGrid, PolarAngleAxis, Radar, PolarRadiusAxis
 } from 'recharts';
+import { ChevronDown, ChevronUp, ArrowUpDown } from 'lucide-react';
+import {Link} from "react-router-dom";
 
 // Sample data - would be fetched from Spring backend in production
 const sampleGradeData = [
@@ -47,6 +49,18 @@ const modules = [
     { name: "Statistische Methoden", category: "Data Science", ects: 3 },
 ];
 
+// Sample grades data
+const sampleGradesOverview = [
+    { id: 1, module: "Data Science", grade: 1.0, semester: "WiSe 24/25", ects: 4, category: "Data Science" },
+    { id: 2, module: "Deep Learning", grade: 1.3, semester: "SoSe 24", ects: 5, category: "Machine Learning" },
+    { id: 3, module: "Berechnung und Logik", grade: 1.7, semester: "WiSe 22/23", ects: 4, category: "Theoretische Informatik" },
+    { id: 4, module: "Compilerbau", grade: 2.0, semester: "WiSe 23/24", ects: 5, category: "Theoretische Informatik" },
+    { id: 5, module: "Softwarearchitektur", grade: 2.3, semester: "SoSe 24", ects: 3, category: "Software Engineering" },
+    { id: 6, module: "Analyse von Algorithmen und Komplexität", grade: 2.7, semester: "SoSe 23", ects: 4, category: "Theoretische Informatik" },
+    { id: 7, module: "Big Data", grade: 3.0, semester: "WiSe 24/25", ects: 2, category: "Data Science" },
+    { id: 8, module: "Statistische Methoden", grade: 3.3, semester: "SoSe 23", ects: 3, category: "Data Science" },
+];
+
 const categoryMap = {};
 
 modules.forEach(mod => {
@@ -61,9 +75,20 @@ const radarData = Object.entries(categoryMap).map(([category, totalECTS]) => ({
     ects: totalECTS,
 }));
 
+// Sort options for the grades overview
+const SORT_OPTIONS = {
+    BEST: "best",
+    WORST: "worst",
+    LATEST: "latest",
+    OLDEST: "oldest",
+    HIGHEST_ECTS: "highest-ects",
+};
+
 const DashboardView = () => {
     const { user } = useAuth();
     const [loading, setLoading] = useState(false);
+    const [sortBy, setSortBy] = useState(SORT_OPTIONS.BEST);
+    const [showSortOptions, setShowSortOptions] = useState(false);
 
     // This would normally fetch dashboard data from your Spring backend
     useEffect(() => {
@@ -73,6 +98,63 @@ const DashboardView = () => {
             setLoading(false);
         }, 500);
     }, []);
+
+    // Sort grades based on selected option
+    const getSortedGrades = () => {
+        const sortedGrades = [...sampleGradesOverview];
+
+        switch (sortBy) {
+            case SORT_OPTIONS.BEST:
+                return sortedGrades.sort((a, b) => a.grade - b.grade);
+            case SORT_OPTIONS.WORST:
+                return sortedGrades.sort((a, b) => b.grade - a.grade);
+            case SORT_OPTIONS.LATEST:
+                return sortedGrades.sort((a, b) => {
+                    // Extract year and semester for sorting
+                    const getTermValue = (term) => {
+                        const year = parseInt(term.match(/\d{2}\/\d{2}|\d{2}/)[0].split('/')[0]) + 2000;
+                        const isSummer = term.includes('SoSe');
+                        return year * 10 + (isSummer ? 1 : 0);
+                    };
+                    return getTermValue(b.semester) - getTermValue(a.semester);
+                });
+            case SORT_OPTIONS.OLDEST:
+                return sortedGrades.sort((a, b) => {
+                    // Extract year and semester for sorting
+                    const getTermValue = (term) => {
+                        const year = parseInt(term.match(/\d{2}\/\d{2}|\d{2}/)[0].split('/')[0]) + 2000;
+                        const isSummer = term.includes('SoSe');
+                        return year * 10 + (isSummer ? 1 : 0);
+                    };
+                    return getTermValue(a.semester) - getTermValue(b.semester);
+                });
+            case SORT_OPTIONS.HIGHEST_ECTS:
+                return sortedGrades.sort((a, b) => b.ects - a.ects);
+            default:
+                return sortedGrades;
+        }
+    };
+
+    // Get top 5 grades based on current sort
+    const topGrades = getSortedGrades().slice(0, 5);
+
+    // Get friendly label for sort option
+    const getSortLabel = () => {
+        switch (sortBy) {
+            case SORT_OPTIONS.BEST:
+                return "Beste Noten";
+            case SORT_OPTIONS.WORST:
+                return "Schlechteste Noten";
+            case SORT_OPTIONS.LATEST:
+                return "Neueste Noten";
+            case SORT_OPTIONS.OLDEST:
+                return "Älteste Noten";
+            case SORT_OPTIONS.HIGHEST_ECTS:
+                return "Höchste ECTS";
+            default:
+                return "Sortieren nach";
+        }
+    };
 
     if (loading) {
         return (
@@ -117,6 +199,106 @@ const DashboardView = () => {
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </NeuCard>
+
+                {/* Grades Overview Card */}
+                <NeuCard>
+                    <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-xl font-semibold text-gray-700">Notenübersicht</h3>
+                        <div className="relative">
+                            <button
+                                onClick={() => setShowSortOptions(!showSortOptions)}
+                                className="flex items-center gap-1 px-3 py-1 text-sm text-gray-700 bg-gray-100 rounded-lg shadow-[2px_2px_5px_#d1d1d1,_-2px_-2px_5px_#ffffff] hover:shadow-[1px_1px_3px_#d1d1d1,_-1px_-1px_3px_#ffffff] transition-all duration-300"
+                            >
+                                {getSortLabel()} <ArrowUpDown size={16} />
+                            </button>
+
+                            {showSortOptions && (
+                                <div className="absolute right-0 mt-2 w-44 bg-white rounded-lg shadow-lg z-10 py-1 text-sm border border-gray-200">
+                                    <button
+                                        className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${sortBy === SORT_OPTIONS.BEST ? 'text-blue-600 font-medium' : 'text-gray-700'}`}
+                                        onClick={() => {
+                                            setSortBy(SORT_OPTIONS.BEST);
+                                            setShowSortOptions(false);
+                                        }}
+                                    >
+                                        Beste Noten
+                                    </button>
+                                    <button
+                                        className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${sortBy === SORT_OPTIONS.WORST ? 'text-blue-600 font-medium' : 'text-gray-700'}`}
+                                        onClick={() => {
+                                            setSortBy(SORT_OPTIONS.WORST);
+                                            setShowSortOptions(false);
+                                        }}
+                                    >
+                                        Schlechteste Noten
+                                    </button>
+                                    <button
+                                        className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${sortBy === SORT_OPTIONS.LATEST ? 'text-blue-600 font-medium' : 'text-gray-700'}`}
+                                        onClick={() => {
+                                            setSortBy(SORT_OPTIONS.LATEST);
+                                            setShowSortOptions(false);
+                                        }}
+                                    >
+                                        Neueste Noten
+                                    </button>
+                                    <button
+                                        className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${sortBy === SORT_OPTIONS.OLDEST ? 'text-blue-600 font-medium' : 'text-gray-700'}`}
+                                        onClick={() => {
+                                            setSortBy(SORT_OPTIONS.OLDEST);
+                                            setShowSortOptions(false);
+                                        }}
+                                    >
+                                        Älteste Noten
+                                    </button>
+                                    <button
+                                        className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${sortBy === SORT_OPTIONS.HIGHEST_ECTS ? 'text-blue-600 font-medium' : 'text-gray-700'}`}
+                                        onClick={() => {
+                                            setSortBy(SORT_OPTIONS.HIGHEST_ECTS);
+                                            setShowSortOptions(false);
+                                        }}
+                                    >
+                                        Höchste ECTS
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="overflow-hidden">
+                        {topGrades.map((grade, index) => (
+                            <div
+                                key={grade.id}
+                                className={`flex justify-between items-center py-3 ${
+                                    index !== topGrades.length - 1 ? 'border-b border-gray-200' : ''
+                                }`}
+                            >
+                                <div>
+                                    <h4 className="font-medium text-gray-800">{grade.module}</h4>
+                                    <p className="text-sm text-gray-500">{grade.semester} • {grade.category}</p>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <span className="bg-blue-50 text-blue-600 px-2 py-1 rounded text-sm">{grade.ects} ECTS</span>
+                                    <span className={`font-bold text-lg ${
+                                        grade.grade <= 1.5 ? 'text-green-600' :
+                                            grade.grade <= 2.5 ? 'text-blue-600' :
+                                                grade.grade <= 3.5 ? 'text-orange-500' : 'text-red-500'
+                                    }`}>
+                                        {grade.grade.toFixed(1)}
+                                    </span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="mt-4 text-center">
+                        <Link
+                            to="/grades"
+                            className="text-sm text-blue-600 hover:underline"
+                        >
+                            Alle Noten anzeigen →
+                        </Link>
                     </div>
                 </NeuCard>
 
