@@ -2,7 +2,21 @@
 import React, { useState, useEffect } from 'react';
 import { Layout, NeuCard } from '../components/Layout';
 import useAuth from '../../hooks/AuthProvider';
-import { BarChart, LineChart, PieChart, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Bar, Line, Pie, ResponsiveContainer } from 'recharts';
+import {
+    BarChart,
+    LineChart,
+    PieChart,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    Legend,
+    Bar,
+    Line,
+    Pie,
+    ResponsiveContainer,
+    RadarChart, PolarGrid, PolarAngleAxis, Radar, PolarRadiusAxis
+} from 'recharts';
 
 // Sample data - would be fetched from Spring backend in production
 const sampleGradeData = [
@@ -13,23 +27,39 @@ const sampleGradeData = [
     { name: 'F', value: 2, fill: '#560bad' },
 ];
 
-const sampleAttendanceData = [
-    { month: 'Jan', attendance: 92 },
-    { month: 'Feb', attendance: 88 },
-    { month: 'Mar', attendance: 95 },
-    { month: 'Apr', attendance: 90 },
-    { month: 'May', attendance: 87 },
-    { month: 'Jun', attendance: 94 },
+const sampleECTSData = [
+    { semester: 'WiSe 22/23', ECTS: 28 },
+    { semester: 'SoSe23', ECTS: 33 },
+    { semester: 'WiSe 23/24', ECTS: 27 },
+    { semester: 'SoSe 24', ECTS: 54 },
+    { semester: 'WiSe 24/25', ECTS: 23 },
+    { semester: 'SoSe 25', ECTS: 0 },
 ];
 
-const samplePerformanceData = [
-    { subject: 'Math', score: 78, fullMark: 100 },
-    { subject: 'Physics', score: 85, fullMark: 100 },
-    { subject: 'Chemistry', score: 65, fullMark: 100 },
-    { subject: 'Literature', score: 92, fullMark: 100 },
-    { subject: 'History', score: 88, fullMark: 100 },
-    { subject: 'Computer Science', score: 95, fullMark: 100 },
+const modules = [
+    { name: "Berechnung und Logik", category: "Theoretische Informatik", ects: 4 },
+    { name: "Analyse von Algotihmen und Komplexität", category: "Theoretische Informatik", ects: 4 },
+    { name: "Compilerbau", category: "Theoretische Informatik", ects: 5 },
+    { name: "Softwarearchitektur", category: "Software Engineering", ects: 3 },
+    { name: "Data Science", category: "Data Science", ects: 4 },
+    { name: "Deep Learning", category: "Machine Learning", ects: 5 },
+    { name: "Big Data", category: "Data Science", ects: 2 },
+    { name: "Statistische Methoden", category: "Data Science", ects: 3 },
 ];
+
+const categoryMap = {};
+
+modules.forEach(mod => {
+    if (!categoryMap[mod.category]) {
+        categoryMap[mod.category] = 0;
+    }
+    categoryMap[mod.category] += mod.ects;
+});
+
+const radarData = Object.entries(categoryMap).map(([category, totalECTS]) => ({
+    category,
+    ects: totalECTS,
+}));
 
 const DashboardView = () => {
     const { user } = useAuth();
@@ -59,21 +89,39 @@ const DashboardView = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <NeuCard className="md:col-span-2">
                     <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        {/* Left Info */}
                         <div>
-                            <h2 className="text-2xl font-bold text-gray-700">Welcome back, {user?.name}</h2>
-                            <p className="text-gray-500">Student ID: {user?.studentId} | {user?.program} - Year {user?.year}</p>
+                            <h2 className="text-2xl font-bold text-gray-700">Willkommen zurück, {user?.name}</h2>
+                            <p className="text-gray-500">
+                                Matrikelnummer: {user?.studentId} | {user?.program} - Semester {user?.year}
+                            </p>
                         </div>
-                        <div className="p-4 bg-blue-50 rounded-xl shadow-[inset_3px_3px_6px_#d1d1d1,_inset_-3px_-3px_6px_#ffffff]">
-                            <div className="text-center">
-                                <p className="text-gray-500">Current GPA</p>
-                                <p className="text-3xl font-bold text-blue-600">{user?.gpa}</p>
+
+                        {/* Note + ECTS together */}
+                        <div className="flex gap-4">
+                            {/* GPA Box */}
+                            <div className="p-4 bg-blue-50 rounded-xl shadow-[inset_3px_3px_6px_#d1d1d1,_inset_-3px_-3px_6px_#ffffff]">
+                                <div className="text-center">
+                                    <p className="text-gray-500">Note</p>
+                                    <p className="text-3xl font-bold text-blue-600">{user?.gpa}</p>
+                                </div>
+                            </div>
+
+                            {/* ECTS Box */}
+                            <div className="p-4 bg-blue-50 rounded-xl shadow-[inset_3px_3px_6px_#d1d1d1,_inset_-3px_-3px_6px_#ffffff]">
+                                <div className="text-center">
+                                    <p className="text-gray-500">ECTS</p>
+                                    <p className="text-3xl font-bold text-blue-600">
+                                        {sampleECTSData.reduce((sum, curr) => sum + curr.ECTS, 0)}
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </NeuCard>
 
                 <NeuCard>
-                    <h3 className="text-xl font-semibold text-gray-700 mb-4">Grade Distribution</h3>
+                    <h3 className="text-xl font-semibold text-gray-700 mb-4">Notenverteilung</h3>
                     <ResponsiveContainer width="100%" height={220}>
                         <PieChart>
                             <Pie
@@ -93,31 +141,32 @@ const DashboardView = () => {
                 </NeuCard>
 
                 <NeuCard>
-                    <h3 className="text-xl font-semibold text-gray-700 mb-4">Attendance Rate</h3>
+                    <h3 className="text-xl font-semibold text-gray-700 mb-4">ECTS pro Semester</h3>
                     <ResponsiveContainer width="100%" height={220}>
                         <LineChart
-                            data={sampleAttendanceData}
+                            data={sampleECTSData}
                             margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
                         >
                             <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                            <XAxis dataKey="month" />
-                            <YAxis domain={[60, 100]} />
+                            <XAxis dataKey="semester" />
+                            <YAxis domain={[0, 100]} />
                             <Tooltip />
-                            <Line type="monotone" dataKey="attendance" stroke="#4361ee" strokeWidth={2} dot={{ r: 4 }} />
+                            <Line type="monotone" dataKey="ECTS" stroke="#4361ee" strokeWidth={2} dot={{ r: 4 }} />
                         </LineChart>
                     </ResponsiveContainer>
                 </NeuCard>
 
-                <NeuCard className="md:col-span-2">
-                    <h3 className="text-xl font-semibold text-gray-700 mb-4">Subject Performance</h3>
-                    <ResponsiveContainer width="100%" height={250}>
-                        <BarChart data={samplePerformanceData}>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                            <XAxis dataKey="subject" />
-                            <YAxis domain={[0, 100]} />
+                <NeuCard>
+                    <h3 className="text-xl font-semibold text-gray-700 mb-4">Modulverteilung</h3>
+                    <ResponsiveContainer width="100%" height={220}>
+                        <RadarChart data={radarData}>
+                            <PolarGrid />
+                            <PolarAngleAxis dataKey="category" />
+                            <PolarRadiusAxis angle={30} domain={[0, 'auto']} />
+                            <Radar name="ECTS" dataKey="ects" stroke="#3f45aa" fill="#4361ee" fillOpacity={0.6} />
+                            <Legend />
                             <Tooltip />
-                            <Bar dataKey="score" fill="#4cc9f0" radius={[4, 4, 0, 0]} />
-                        </BarChart>
+                        </RadarChart>
                     </ResponsiveContainer>
                 </NeuCard>
             </div>
