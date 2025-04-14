@@ -8,6 +8,7 @@ interface AuthContextType {
     user: any | null;
     login: (username: string, password: string ) => Promise<void>;
     logout: () => void;
+    data: any | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -16,6 +17,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState<any | null>(null);
+    const [data, setData] = useState<any | null>(null);
 
     useEffect(() => {
         // Check if user is already logged in
@@ -26,7 +28,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             year: 3,
             gpa: 3.8
         });
-        setIsAuthenticated(localStorage.getItem('data') != null);
+        let data = localStorage.getItem('data');
+        setIsAuthenticated(data != null);
+
+        if (data != null) {
+            setData(JSON.parse(data));
+        }
         setLoading(false);
 
     }, []);
@@ -44,6 +51,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (res.ok) {
             let json = await res.json();
             localStorage.setItem('data', JSON.stringify(json));
+            setData(json);
             setIsAuthenticated(true);
         } else {
             throw new Error("Invalid Username or password!");
@@ -58,7 +66,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, loading, user, login, logout }}>
+        <AuthContext.Provider value={{ isAuthenticated, loading, user, login, logout, data }}>
             {children}
         </AuthContext.Provider>
     );

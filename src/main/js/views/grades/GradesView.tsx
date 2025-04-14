@@ -1,56 +1,10 @@
 // File: src/main/js/views/grades/GradesView.tsx
 import React, { useState, useEffect } from 'react';
 import { Layout, NeuCard } from '../components/Layout';
+import useAuth from "../../hooks/AuthProvider";
 
 const GradesView = () => {
-    const [loading, setLoading] = useState(false);
-    const [grades, setGrades] = useState([
-        {
-            course: "Advanced Algorithms",
-            code: "CS401",
-            credits: 4,
-            grade: "A",
-            status: "Completed"
-        },
-        {
-            course: "Database Systems",
-            code: "CS355",
-            credits: 3,
-            grade: "A-",
-            status: "Completed"
-        },
-        {
-            course: "Software Engineering",
-            code: "CS380",
-            credits: 4,
-            grade: "B+",
-            status: "Completed"
-        },
-        {
-            course: "Machine Learning",
-            code: "CS440",
-            credits: 4,
-            grade: "B",
-            status: "Completed"
-        },
-        {
-            course: "Computer Networks",
-            code: "CS430",
-            credits: 3,
-            grade: "-",
-            status: "In Progress"
-        }
-    ]);
-
-    // This would normally fetch grade data from your Spring backend
-    useEffect(() => {
-        setLoading(true);
-        // Simulating API call
-        setTimeout(() => {
-            // In real app: fetch('/api/grades').then(...)
-            setLoading(false);
-        }, 500);
-    }, []);
+    const {data, loading} = useAuth();
 
     if (loading) {
         return (
@@ -78,21 +32,22 @@ const GradesView = () => {
                         </tr>
                         </thead>
                         <tbody>
-                        {grades.map((course, index) => (
-                            <tr key={index} className={index !== grades.length - 1 ? "border-b border-gray-100" : ""}>
-                                <td className="py-4">{course.course}</td>
-                                <td className="py-4">{course.code}</td>
-                                <td className="py-4">{course.credits}</td>
+                        {data?.examResults?.map((course, index) => (
+                            <tr key={index} className={index !== data.length - 1 ? "border-b border-gray-100" : ""}>
+                                <td className="py-4">{course.moduleName}</td>
+                                <td className="py-4">{course.moduleCode}</td>
+                                <td className="py-4">{course.ects}</td>
                                 <td className="py-4 font-medium" className={course.grade !== '-' ? "py-4 font-medium text-blue-600" : "py-4 font-medium text-gray-400"}>
                                     {course.grade}
                                 </td>
                                 <td className="py-4">
                     <span className={`px-2 py-1 rounded-full text-xs ${
-                        course.status === 'Completed'
+                        // TODO ändern!
+                        'Completed' === 'Completed'
                             ? 'bg-green-100 text-green-800'
                             : 'bg-blue-100 text-blue-800'
                     }`}>
-                      {course.status}
+                      Bestanden
                     </span>
                                 </td>
                             </tr>

@@ -1,7 +1,7 @@
 // File: src/main/js/views/dashboard/DashboardView.tsx
 import React, { useState, useEffect } from 'react';
 import { Layout, NeuCard } from '../components/Layout';
-import useAuth from '../../hooks/AuthProvider';
+import useAuth, {AuthProvider} from '../../hooks/AuthProvider';
 import {
     BarChart,
     LineChart,
@@ -61,6 +61,7 @@ const sampleGradesOverview = [
     { id: 8, module: "Statistische Methoden", grade: 3.3, semester: "SoSe 23", ects: 3, category: "Data Science" },
 ];
 
+
 const categoryMap = {};
 
 modules.forEach(mod => {
@@ -85,7 +86,7 @@ const SORT_OPTIONS = {
 };
 
 const DashboardView = () => {
-    const { user } = useAuth();
+    const { user, data } = useAuth();
     const [loading, setLoading] = useState(false);
     const [sortBy, setSortBy] = useState(SORT_OPTIONS.BEST);
     const [showSortOptions, setShowSortOptions] = useState(false);
