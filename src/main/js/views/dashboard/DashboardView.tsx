@@ -62,6 +62,7 @@ const sampleGradesOverview = [
 ];
 
 
+
 const categoryMap = {};
 
 modules.forEach(mod => {
@@ -76,7 +77,7 @@ const radarData = Object.entries(categoryMap).map(([category, totalECTS]) => ({
     ects: totalECTS,
 }));
 
-// Sort options for the grades overview
+// Sort options for the grades overview tew
 const SORT_OPTIONS = {
     BEST: "best",
     WORST: "worst",
@@ -86,23 +87,13 @@ const SORT_OPTIONS = {
 };
 
 const DashboardView = () => {
-    const { user, data } = useAuth();
-    const [loading, setLoading] = useState(false);
+    const { user, data, loading } = useAuth();
     const [sortBy, setSortBy] = useState(SORT_OPTIONS.BEST);
     const [showSortOptions, setShowSortOptions] = useState(false);
 
-    // This would normally fetch dashboard data from your Spring backend
-    useEffect(() => {
-        setLoading(true);
-        // Simulating API call
-        setTimeout(() => {
-            setLoading(false);
-        }, 500);
-    }, []);
-
     // Sort grades based on selected option
     const getSortedGrades = () => {
-        const sortedGrades = [...sampleGradesOverview];
+        const sortedGrades = [...data.examResults];
 
         switch (sortBy) {
             case SORT_OPTIONS.BEST:
@@ -114,7 +105,7 @@ const DashboardView = () => {
                     // Extract year and semester for sorting
                     const getTermValue = (term) => {
                         const year = parseInt(term.match(/\d{2}\/\d{2}|\d{2}/)[0].split('/')[0]) + 2000;
-                        const isSummer = term.includes('SoSe');
+                        const isSummer = term.includes('SS');
                         return year * 10 + (isSummer ? 1 : 0);
                     };
                     return getTermValue(b.semester) - getTermValue(a.semester);
@@ -124,7 +115,7 @@ const DashboardView = () => {
                     // Extract year and semester for sorting
                     const getTermValue = (term) => {
                         const year = parseInt(term.match(/\d{2}\/\d{2}|\d{2}/)[0].split('/')[0]) + 2000;
-                        const isSummer = term.includes('SoSe');
+                        const isSummer = term.includes('SS');
                         return year * 10 + (isSummer ? 1 : 0);
                     };
                     return getTermValue(a.semester) - getTermValue(b.semester);
@@ -195,7 +186,7 @@ const DashboardView = () => {
                                 <div className="text-center">
                                     <p className="text-gray-500">ECTS</p>
                                     <p className="text-3xl font-bold text-blue-600">
-                                        {sampleECTSData.reduce((sum, curr) => sum + curr.ECTS, 0)}
+                                        {data?.examResults?.filter(x => x.grade != "5.0").reduce((sum, curr) => sum + parseInt(curr.ects), 0)}
                                     </p>
                                 </div>
                             </div>
@@ -276,8 +267,8 @@ const DashboardView = () => {
                                 }`}
                             >
                                 <div>
-                                    <h4 className="font-medium text-gray-800">{grade.module}</h4>
-                                    <p className="text-sm text-gray-500">{grade.semester} • {grade.category}</p>
+                                    <h4 className="font-medium text-gray-800">{grade.moduleName}</h4>
+                                    <p className="text-sm text-gray-500">{grade.semester}</p>
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <span className="bg-blue-50 text-blue-600 px-2 py-1 rounded text-sm">{grade.ects} ECTS</span>
@@ -286,7 +277,7 @@ const DashboardView = () => {
                                             grade.grade <= 2.5 ? 'text-blue-600' :
                                                 grade.grade <= 3.5 ? 'text-orange-500' : 'text-red-500'
                                     }`}>
-                                        {grade.grade.toFixed(1)}
+                                        {grade.grade}
                                     </span>
                                 </div>
                             </div>
