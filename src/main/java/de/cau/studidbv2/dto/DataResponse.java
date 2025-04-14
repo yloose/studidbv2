@@ -5,9 +5,10 @@ import java.util.List;
 
 public record DataResponse(
         List<ExamResult> examResults,
+        StudidbUserInfo userInfo,
         Date fetchDate
 ) {
-    public DataResponse(List<ExamResult> examResults) {
-        this(examResults, new Date());
+    public DataResponse(List<ExamResult> examResults, StudidbUserInfo userInfo) {
+        this(examResults, userInfo, new Date());
     }
 }
