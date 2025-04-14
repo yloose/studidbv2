@@ -24,10 +24,10 @@ const LoginView = () => {
         setIsLoading(true);
 
         try {
-            await login({ username, password });
-            navigate('/');
+            await login(username, password);
+            navigate("/");
         } catch (err) {
-            setError('Invalid username or password');
+            setError(err.message);
         } finally {
             setIsLoading(false);
         }

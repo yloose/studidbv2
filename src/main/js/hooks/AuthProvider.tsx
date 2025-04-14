@@ -1,11 +1,12 @@
 // File: src/main/js/hooks/AuthProvider.tsx
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import {Simulate} from "react-dom/test-utils";
 
 interface AuthContextType {
     isAuthenticated: boolean;
     loading: boolean;
     user: any | null;
-    login: (credentials: { username: string; password: string }) => Promise<void>;
+    login: (username: string, password: string ) => Promise<void>;
     logout: () => void;
 }
 
@@ -18,62 +19,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         // Check if user is already logged in
-        const checkAuth = async () => {
-            try {
-                const token = localStorage.getItem('authToken');
-                if (token) {
-                    // Verify token with backend
-                    // For demo, just simulate authentication
-                    setUser({
-                        name: "Alex Johnson",
-                        studentId: "UNI2025124",
-                        program: "Computer Science",
-                        year: 3,
-                        gpa: 3.8
-                    });
-                    setIsAuthenticated(true);
-                }
-            } catch (error) {
-                localStorage.removeItem('authToken');
-            } finally {
-                setLoading(false);
-            }
-        };
+        setUser({
+            name: "Alex Johnson",
+            studentId: "UNI2025124",
+            program: "Computer Science",
+            year: 3,
+            gpa: 3.8
+        });
+        setIsAuthenticated(localStorage.getItem('data') != null);
+        setLoading(false);
 
-        checkAuth();
     }, []);
 
-    const login = async (credentials: { username: string; password: string }) => {
+    const login = async (username: string, password: string) => {
         setLoading(true);
-        try {
-            // In production, this would call your Spring backend
-            // const response = await fetch('/api/auth/login', {
-            //   method: 'POST',
-            //   headers: { 'Content-Type': 'application/json' },
-            //   body: JSON.stringify(credentials),
-            // });
-            // const data = await response.json();
+        let header = new Headers();
 
-            // For demo, simulate successful login
-            await new Promise(resolve => setTimeout(resolve, 1000));
+        header.set('Authorization', 'Basic ' + btoa(username + ":" + password));
+        let res = await fetch("/api/data", {
+            method: "GET",
+            headers: header,
+        })
 
-            // Store token
-            localStorage.setItem('authToken', 'demo-token');
-
-            // Set user data
-            setUser({
-                name: "Alex Johnson",
-                studentId: "UNI2025124",
-                program: "Computer Science",
-                year: 3,
-                gpa: 3.8
-            });
+        if (res.ok) {
+            let json = await res.json();
+            localStorage.setItem('data', JSON.stringify(json));
             setIsAuthenticated(true);
-        } catch (error) {
-            throw new Error('Login failed');
-        } finally {
-            setLoading(false);
+        } else {
+            throw new Error("Invalid Username or password!");
         }
+        setLoading(false);
     };
 
     const logout = () => {
