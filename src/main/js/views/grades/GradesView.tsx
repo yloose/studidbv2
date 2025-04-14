@@ -19,15 +19,15 @@ const GradesView = () => {
     return (
         <Layout>
             <NeuCard>
-                <h2 className="text-2xl font-bold text-gray-700 mb-6">Course Grades</h2>
+                <h2 className="text-2xl font-bold text-gray-700 mb-6">Notenübersicht</h2>
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead>
                         <tr className="border-b border-gray-200">
-                            <th className="pb-3 font-semibold text-gray-600">Course</th>
-                            <th className="pb-3 font-semibold text-gray-600">Code</th>
-                            <th className="pb-3 font-semibold text-gray-600">Credits</th>
-                            <th className="pb-3 font-semibold text-gray-600">Grade</th>
+                            <th className="pb-3 font-semibold text-gray-600">Modul</th>
+                            <th className="pb-3 font-semibold text-gray-600">Modulcode</th>
+                            <th className="pb-3 font-semibold text-gray-600">ECTS</th>
+                            <th className="pb-3 font-semibold text-gray-600">Note</th>
                             <th className="pb-3 font-semibold text-gray-600">Status</th>
                         </tr>
                         </thead>
@@ -37,17 +37,16 @@ const GradesView = () => {
                                 <td className="py-4">{course.moduleName}</td>
                                 <td className="py-4">{course.moduleCode}</td>
                                 <td className="py-4">{course.ects}</td>
-                                <td className="py-4 font-medium" className={course.grade !== '-' ? "py-4 font-medium text-blue-600" : "py-4 font-medium text-gray-400"}>
+                                <td className="py-4 font-medium text-blue-600">
                                     {course.grade}
                                 </td>
                                 <td className="py-4">
                     <span className={`px-2 py-1 rounded-full text-xs ${
-                        // TODO ändern!
-                        'Completed' === 'Completed'
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-blue-100 text-blue-800'
+                        course.grade == "5.0"
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-green-100 text-green-800'
                     }`}>
-                      Bestanden
+                     {course.grade == "5.0" ? "Nicht bestanden" : "Bestanden"}
                     </span>
                                 </td>
                             </tr>
