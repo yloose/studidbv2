@@ -148,6 +148,14 @@ const DashboardView = () => {
         }
     };
 
+    // Filter out unpassed modules and group by semester
+    const ectsData = Object.groupBy(data.examResults.filter((x) => x.grade != "5.0"), ({semester}) =>
+        semester
+    );
+    // Accumulate the ECTS for each semester and rearrange in list of objects
+    Object.keys(ectsData).forEach((key, index) => ectsData[key] = ectsData[key].reduce((acc, x) => acc + parseInt(x.ects), 0));
+    const ectsDataObj = Object.entries(ectsData).map((arr) => ({semester: arr[0], ects: arr[1]}));
+
     if (loading) {
         return (
             <Layout>
@@ -318,14 +326,14 @@ const DashboardView = () => {
                     <h3 className="text-xl font-semibold text-gray-700 mb-4">ECTS pro Semester</h3>
                     <ResponsiveContainer width="100%" height={220}>
                         <LineChart
-                            data={sampleECTSData}
+                            data={ectsDataObj}
                             margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
                         >
                             <CartesianGrid strokeDasharray="3 3" vertical={false} />
                             <XAxis dataKey="semester" />
-                            <YAxis domain={[0, 100]} />
+                            <YAxis domain={[0, 60]} />
                             <Tooltip />
-                            <Line type="monotone" dataKey="ECTS" stroke="#4361ee" strokeWidth={2} dot={{ r: 4 }} />
+                            <Line type="monotone" dataKey="ects" stroke="#4361ee" strokeWidth={2} dot={{ r: 4 }} />
                         </LineChart>
                     </ResponsiveContainer>
                 </NeuCard>
