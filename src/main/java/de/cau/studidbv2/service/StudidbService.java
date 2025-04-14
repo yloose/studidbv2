@@ -2,6 +2,8 @@ package de.cau.studidbv2.service;
 
 import de.cau.studidbv2.dto.ExamResult;
 import de.cau.studidbv2.dto.StudidbUserInfo;
+import de.cau.studidbv2.dto.UserSemester;
+import de.cau.studidbv2.dto.Module;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -12,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -97,6 +100,76 @@ public class StudidbService {
         return new StudidbUserInfo(name, street + ", " + city, phone, email);
     }
 
+    public UserSemester parseUserModule(Document doc) throws Exception {
+        Element table = doc.selectFirst("table.standard");
+        if (table == null)
+            throw new Exception("Received unexpectedly formatted response");
+
+        Element infoRow = doc.selectFirst("table.standard tr:nth-child(2) td");
+        if (infoRow == null)
+            throw new Exception("Received unexpectedly formatted response");
+
+        String infoText = infoRow.text();
+        // Example text: "Sie studieren zur Zeit Bachelor, 1-Fach Informatik im 6. Semester."
+
+        // Extract the study major and semester using regular expressions
+        String major = "";
+        int semester = 0;
+
+        // Extract study major
+        if (infoText.contains("studieren") && infoText.contains("im")) {
+            major = infoText.substring(infoText.indexOf("Zeit") + 5, infoText.indexOf("im")).trim();
+
+            // Extract semester
+            String semesterStr = infoText.substring(infoText.indexOf("im") + 3, infoText.indexOf("Semester")).trim();
+            if (semesterStr.endsWith(".")) {
+                semesterStr = semesterStr.substring(0, semesterStr.length() - 1);
+            }
+            try {
+                semester = Integer.parseInt(semesterStr);
+            } catch (NumberFormatException e) {
+                LOG.error("Failed to parse semester: {}", semesterStr);
+            }
+        }
+
+        // Parse enrolled modules
+        List<Module> enrolledModules = parseEnrolledModules(doc);
+
+        return new UserSemester(semester, major, enrolledModules);
+    }
+
+    private List<Module> parseEnrolledModules(Document doc) {
+        List<Module> modules = new ArrayList<>();
+
+        // Select the table containing enrolled modules
+        Element enrolledTable = doc.selectFirst("table#angemeldet");
+        if (enrolledTable == null) return modules;
+
+        Elements rows = enrolledTable.select("tr");
+        // Skip the header row
+        for (int i = 1; i < rows.size() - 1; i++) { // Skip the last row which is just spacing
+            Element row = rows.get(i);
+            Elements cols = row.select("td");
+
+            if (cols.size() >= 4) {
+                String moduleId = cols.get(0).text();
+                String moduleName = cols.get(1).text();
+                String ectsText = cols.get(3).text().replace("ECTS", "").trim();
+
+                int ects = 0;
+                try {
+                    ects = Integer.parseInt(ectsText);
+                } catch (NumberFormatException e) {
+                    LOG.error("Failed to parse ECTS: {}", ectsText);
+                }
+
+                modules.add(new Module(moduleId, moduleName, ects));
+            }
+        }
+
+        return modules;
+    }
+
     private Document getStudidbDocument(String path, String sessionId, String jsessionId) throws IOException {
         Connection.Response res = Jsoup.connect(STUDIDB_BASE_URL + path + "?session_id=" + sessionId)
                 .userAgent("Mozilla/5.0 (X11; Linux x86_64; rv:136.0) Gecko/20100101 Firefox/136.0")
@@ -117,5 +190,10 @@ public class StudidbService {
     public StudidbUserInfo getUserInfo(StudidbAuthorization authorization) throws Exception {
         Document doc = getStudidbDocument("/studierende/start", authorization.sessionId(), authorization.jsessionId());
         return parseUserInfo(doc);
+    }
+
+    public UserSemester getUserSemester(StudidbAuthorization authorization) throws Exception {
+        Document doc = getStudidbDocument("/studierende/module", authorization.sessionId(), authorization.jsessionId());
+        return parseUserModule(doc);
     }
 }

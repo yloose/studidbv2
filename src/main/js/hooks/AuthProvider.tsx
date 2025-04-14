@@ -24,21 +24,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setIsAuthenticated(data != null);
 
         if (data != null) {
-            setData(JSON.parse(data));
+            const parsedData = JSON.parse(data);
+            setData(parsedData);
+
+            setUser({
+                // TODO Matrikelnummer holen aus login
+                name: parsedData.userInfo.name,
+                address: parsedData.userInfo.address,
+                phone: parsedData.userInfo.phone,
+                mail: parsedData.userInfo.email,
+                studentId: "UNI2025124",
+                program: parsedData.userSemester.major,
+                year: parsedData.userSemester.semester,
+            });
         }
-
-        setUser({
-            // TODO schöner machen und restliche Daten ziehen
-            name: JSON.parse(data).userInfo.name,
-            address: JSON.parse(data).userInfo.address,
-            phone: JSON.parse(data).userInfo.phone,
-            mail: JSON.parse(data).userInfo.email,
-            studentId: "UNI2025124",
-            program: "Informatik",
-            year: 3,
-        });
-
-
         setLoading(false);
 
     }, []);

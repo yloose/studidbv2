@@ -3,6 +3,7 @@ package de.cau.studidbv2.controller;
 import de.cau.studidbv2.dto.DataResponse;
 import de.cau.studidbv2.dto.ExamResult;
 import de.cau.studidbv2.dto.StudidbUserInfo;
+import de.cau.studidbv2.dto.UserSemester;
 import de.cau.studidbv2.service.LoginException;
 import de.cau.studidbv2.service.StudidbAuthorization;
 import de.cau.studidbv2.service.StudidbService;
@@ -46,7 +47,8 @@ public class ApiController {
             StudidbAuthorization authorization = studidbService.login(credentials[0], credentials[1]);
             List<ExamResult> examResults = studidbService.getExamResults(authorization);
             StudidbUserInfo userInfo = studidbService.getUserInfo(authorization);
-            return new DataResponse(examResults, userInfo);
+            UserSemester userSemester = studidbService.getUserSemester(authorization);
+            return new DataResponse(examResults, userInfo, userSemester);
         } catch (LoginException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
         } catch (Exception e) {
