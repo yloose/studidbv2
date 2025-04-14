@@ -29,14 +29,6 @@ const sampleGradeData = [
     { name: 'F', value: 2, fill: '#560bad' },
 ];
 
-const sampleECTSData = [
-    { semester: 'WiSe 22/23', ECTS: 28 },
-    { semester: 'SoSe23', ECTS: 33 },
-    { semester: 'WiSe 23/24', ECTS: 27 },
-    { semester: 'SoSe 24', ECTS: 54 },
-    { semester: 'WiSe 24/25', ECTS: 23 },
-    { semester: 'SoSe 25', ECTS: 0 },
-];
 
 const modules = [
     { name: "Berechnung und Logik", category: "Theoretische Informatik", ects: 4 },
@@ -47,18 +39,6 @@ const modules = [
     { name: "Deep Learning", category: "Machine Learning", ects: 5 },
     { name: "Big Data", category: "Data Science", ects: 2 },
     { name: "Statistische Methoden", category: "Data Science", ects: 3 },
-];
-
-// Sample grades data
-const sampleGradesOverview = [
-    { id: 1, module: "Data Science", grade: 1.0, semester: "WiSe 24/25", ects: 4, category: "Data Science" },
-    { id: 2, module: "Deep Learning", grade: 1.3, semester: "SoSe 24", ects: 5, category: "Machine Learning" },
-    { id: 3, module: "Berechnung und Logik", grade: 1.7, semester: "WiSe 22/23", ects: 4, category: "Theoretische Informatik" },
-    { id: 4, module: "Compilerbau", grade: 2.0, semester: "WiSe 23/24", ects: 5, category: "Theoretische Informatik" },
-    { id: 5, module: "Softwarearchitektur", grade: 2.3, semester: "SoSe 24", ects: 3, category: "Software Engineering" },
-    { id: 6, module: "Analyse von Algorithmen und Komplexität", grade: 2.7, semester: "SoSe 23", ects: 4, category: "Theoretische Informatik" },
-    { id: 7, module: "Big Data", grade: 3.0, semester: "WiSe 24/25", ects: 2, category: "Data Science" },
-    { id: 8, module: "Statistische Methoden", grade: 3.3, semester: "SoSe 23", ects: 3, category: "Data Science" },
 ];
 
 
@@ -184,8 +164,8 @@ const DashboardView = () => {
                             {/* GPA Box */}
                             <div className="p-4 bg-blue-50 rounded-xl shadow-[inset_3px_3px_6px_#d1d1d1,_inset_-3px_-3px_6px_#ffffff]">
                                 <div className="text-center">
-                                    <p className="text-gray-500">Note</p>
-                                    <p className="text-3xl font-bold text-blue-600">{user?.gpa}</p>
+                                    <p className="text-gray-500">Schnitt</p>
+                                    <p className="text-3xl font-bold text-blue-600">{((data?.examResults?.filter(x => x.grade != "5.0").reduce((sum, curr) => sum + parseInt(curr.grade), 0)) / data?.examResults?.filter(x => x.grade != "5.0").length).toFixed(2)}</p>
                                 </div>
                             </div>
 
