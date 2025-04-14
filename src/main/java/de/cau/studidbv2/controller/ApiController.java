@@ -29,7 +29,7 @@ public class ApiController {
         if (authHeader == null || !authHeader.startsWith("Basic "))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid credentials");
 
-        String credentialsString = new String(Base64.getDecoder().decode(authHeader.substring("Basic: ".length())));
+        String credentialsString = new String(Base64.getDecoder().decode(authHeader.substring("Basic ".length())));
         String[] credentials = credentialsString.split(":");
         if (credentials.length != 2)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid credentials");
