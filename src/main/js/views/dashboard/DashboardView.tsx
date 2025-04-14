@@ -15,18 +15,24 @@ import {
     Line,
     Pie,
     ResponsiveContainer,
-    RadarChart, PolarGrid, PolarAngleAxis, Radar, PolarRadiusAxis
+    RadarChart, PolarGrid, PolarAngleAxis, Radar, PolarRadiusAxis, Cell
 } from 'recharts';
 import { ChevronDown, ChevronUp, ArrowUpDown } from 'lucide-react';
 import {Link} from "react-router-dom";
 
-// Sample data - would be fetched from Spring backend in production
-const sampleGradeData = [
-    { name: 'A', value: 35, fill: '#4361ee' },
-    { name: 'B', value: 40, fill: '#3a86ff' },
-    { name: 'C', value: 15, fill: '#4cc9f0' },
-    { name: 'D', value: 8, fill: '#4895ef' },
-    { name: 'F', value: 2, fill: '#560bad' },
+// Colors for different segments - blue fade
+const COLORS = [
+    '#0D47A1', // 1.0 (darkest blue - best grade)
+    '#1565C0', // 1.3
+    '#1976D2', // 1.7
+    '#1E88E5', // 2.0
+    '#2196F3', // 2.3
+    '#42A5F5', // 2.7
+    '#64B5F6', // 3.0
+    '#90CAF9', // 3.3
+    '#BBDEFB', // 3.7
+    '#E3F2FD', // 4.0
+    '#F5F9FF'  // 5.0 (lightest blue - worst grade)
 ];
 
 
@@ -128,6 +134,7 @@ const DashboardView = () => {
         }
     };
 
+    // ECTS per semester
     // Filter out unpassed modules and group by semester
     const ectsData = Object.groupBy(data.examResults.filter((x) => x.grade != "5.0"), ({semester}) =>
         semester
@@ -135,6 +142,17 @@ const DashboardView = () => {
     // Accumulate the ECTS for each semester and rearrange in list of objects
     Object.keys(ectsData).forEach((key, index) => ectsData[key] = ectsData[key].reduce((acc, x) => acc + parseInt(x.ects), 0));
     const ectsDataObj = Object.entries(ectsData).map((arr) => ({semester: arr[0], ects: arr[1]}));
+
+    // Notenverteilung
+    const gradesData = Object.groupBy(data.examResults, ({grade}) =>
+        grade
+    );
+
+    Object.keys(gradesData).forEach((key, index) => gradesData[key] = gradesData[key].reduce((acc, x) => acc + 1, 0));
+    const gradesDataObj = Object.entries(gradesData).map((arr) => ({grade: arr[0], count: arr[1]}));
+
+console.log(gradesData);
+    console.log(gradesDataObj);
 
     if (loading) {
         return (
@@ -284,19 +302,24 @@ const DashboardView = () => {
 
                 <NeuCard>
                     <h3 className="text-xl font-semibold text-gray-700 mb-4">Notenverteilung</h3>
-                    <ResponsiveContainer width="100%" height={220}>
+                    <ResponsiveContainer width="100%" height={220} className="flex items-center justify-center">
                         <PieChart>
                             <Pie
-                                data={sampleGradeData}
+                                data={gradesDataObj}
                                 cx="50%"
                                 cy="50%"
                                 innerRadius={60}
                                 outerRadius={80}
-                                paddingAngle={5}
-                                dataKey="value"
-                                label
-                            />
-                            <Tooltip />
+                                paddingAngle={2}
+                                dataKey="count"
+                                nameKey="grade"
+                                label={({name, percent}) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                            >
+                                {gradesDataObj?.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                ))}
+                            </Pie>
+                            <Tooltip formatter={(value, name, props) => [value, 'Anzahl']} />
                             <Legend />
                         </PieChart>
                     </ResponsiveContainer>
