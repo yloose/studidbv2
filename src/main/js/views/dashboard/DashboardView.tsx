@@ -149,8 +149,9 @@ const DashboardView = () => {
     );
 
     Object.keys(gradesData).forEach((key, index) => gradesData[key] = gradesData[key].reduce((acc, x) => acc + 1, 0));
-    const gradesDataObj = Object.entries(gradesData).map((arr) => ({grade: arr[0], count: arr[1]}));
+    const gradesDataObj = Object.entries(gradesData).map((arr) => ({grade: arr[0], count: arr[1]})).sort((a, b) => parseFloat(b.grade) - parseFloat(a.grade));
 
+    console.log(gradesDataObj)
 
     return (
         <Layout>
@@ -288,30 +289,21 @@ const DashboardView = () => {
                     </div>
                 </NeuCard>
 
-                <NeuCard>
-                    <h3 className="text-xl font-semibold text-gray-700 mb-4">Notenverteilung</h3>
-                    <ResponsiveContainer width="100%" height={220} className="flex items-center justify-center">
-                        <PieChart>
-                            <Pie
-                                data={gradesDataObj}
-                                cx="50%"
-                                cy="50%"
-                                innerRadius={60}
-                                outerRadius={80}
-                                paddingAngle={2}
-                                dataKey="count"
-                                nameKey="grade"
-                                label={({name, percent}) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                            >
-                                {gradesDataObj?.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                ))}
-                            </Pie>
-                            <Tooltip formatter={(value, name, props) => [value, 'Anzahl']} />
-                            <Legend />
-                        </PieChart>
-                    </ResponsiveContainer>
+                <NeuCard className="min-h-[300px] flex flex-col justify-between"> {/* Match height with Notenübersicht */}
+                    <h3 className="text-xl font-semibold text-gray-700 mb-2">Notenverteilung</h3>
+                    <div className="flex-grow">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={gradesDataObj}>
+                                <XAxis dataKey="grade" />
+                                <YAxis />
+                                <Tooltip />
+                                <Bar dataKey="count" fill="#0D47A1" />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
                 </NeuCard>
+
+
 
                 <NeuCard>
                     <h3 className="text-xl font-semibold text-gray-700 mb-4">ECTS pro Semester</h3>
