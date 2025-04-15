@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/AuthProvider';
-import { TrendingUp, Users, Award, User, LogOut, Menu, X } from 'lucide-react';
+import {TrendingUp, Users, Award, User, LogOut, Menu, X, Calculator} from 'lucide-react';
 
 // Neumorphic components
 export const NeuCard = ({ children, className = '' }) => (
@@ -44,6 +44,7 @@ export const Layout = ({ children }) => {
         if (path === '/grades') return 'Notenübersicht';
         if (path === '/attendance') return 'Belegte Modoule';
         if (path === '/profile') return 'Profil';
+        if (path === '/calculator') return 'Notenrechner';
         return '';
     };
 
@@ -133,6 +134,14 @@ export const Layout = ({ children }) => {
                         <Award size={isHovered ? 20 : 24} />
                         {isHovered && <span className="whitespace-nowrap transition-opacity duration-500 ease-in-out">Notenübersicht</span>}
                     </Link>
+                    <Link to="/calculator" className={`flex items-center ${isHovered ? 'gap-2' : 'justify-center'} p-4 rounded-xl transition-all duration-300 
+            ${activeSection === 'Notenrechner'
+                        ? 'bg-blue-50 text-blue-600 shadow-[inset_4px_4px_8px_#d1d1d1,_inset_-4px_-4px_8px_#ffffff]'
+                        : 'bg-gray-100 shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff] hover:shadow-[2px_2px_5px_#d1d1d1,_-2px_-2px_5px_#ffffff]'}`
+                    }>
+                        <Calculator size={isHovered ? 20 : 24} />
+                        {isHovered && <span className="whitespace-nowrap transition-opacity duration-500 ease-in-out">Notenrechner</span>}
+                    </Link>
                     <Link to="/attendance" className={`flex items-center ${isHovered ? 'gap-2' : 'justify-center'} p-4 rounded-xl transition-all duration-300 
             ${activeSection === 'Belegte Modoule'
                         ? 'bg-blue-50 text-blue-600 shadow-[inset_4px_4px_8px_#d1d1d1,_inset_-4px_-4px_8px_#ffffff]'
@@ -178,8 +187,8 @@ export const Layout = ({ children }) => {
                 <div className="fixed inset-0 bg-black bg-opacity-50 z-10 md:hidden">
                     <div className="bg-white w-64 h-full p-6 shadow-xl animate-slide-in">
                         <div className="mb-10">
-                            <h1 className="text-2xl font-bold text-blue-600">UniStats</h1>
-                            <p className="text-gray-500 text-sm">Student Portal</p>
+                            <h1 className="text-2xl font-bold text-blue-600">StudiDB V2</h1>
+                            <p className="text-gray-500 text-sm">Studierendendatenbank</p>
                         </div>
 
                         <nav className="flex-1 space-y-4">
@@ -206,6 +215,18 @@ export const Layout = ({ children }) => {
                             >
                                 <Award size={20} />
                                 <span>Notenübersicht</span>
+                            </Link>
+                            <Link
+                                to="/grades"
+                                className={`flex items-center gap-2 p-4 rounded-xl transition-all duration-300 
+                  ${activeSection === 'Notenrechner'
+                                    ? 'bg-blue-50 text-blue-600 shadow-[inset_4px_4px_8px_#d1d1d1,_inset_-4px_-4px_8px_#ffffff]'
+                                    : 'bg-gray-100 shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff]'}`
+                                }
+                                onClick={() => setMobileMenuOpen(false)}
+                            >
+                                <Award size={20} />
+                                <span>Notenrechner</span>
                             </Link>
                             <Link
                                 to="/attendance"
@@ -261,14 +282,4 @@ export const Layout = ({ children }) => {
         </div>
     );
 };
-
-// Add this to your global CSS file
-// @keyframes slide-in {
-//   from { transform: translateX(-100%); }
-//   to { transform: translateX(0); }
-// }
-// .animate-slide-in {
-//   animation: slide-in 0.3s ease-out;
-// }
-
 export default Layout;

@@ -256,7 +256,7 @@ const DashboardView = () => {
                     <div className="overflow-hidden">
                         {topGrades.map((grade, index) => (
                             <div
-                                key={grade.id}
+                                key={grade.moduleCode}
                                 className={`flex justify-between items-center py-3 ${
                                     index !== topGrades.length - 1 ? 'border-b border-gray-200' : ''
                                 }`}

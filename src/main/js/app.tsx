@@ -6,6 +6,7 @@ import useAuth, {AuthProvider} from "./hooks/AuthProvider";
 import LoginView from "./views/login/LoginView";
 import DashboardView from "./views/dashboard/DashboardView";
 import GradesView from "./views/grades/GradesView";
+import CalculatorView from "./views/grades/CalculatorView";
 import EnrolledView from "./views/EnrolledView/EnrolledView";
 import ProfileView from "./views/profile/ProfileView";
 
@@ -31,6 +32,7 @@ const App = function (props: any) {
             <Route path="/" element={isAuthenticated ? <DashboardView /> : login} />
             <Route path="/grades" element={isAuthenticated ? <GradesView /> : login }/>
             <Route path="/attendance" element={isAuthenticated ? <EnrolledView /> : login} />
+            <Route path="/calculator" element={isAuthenticated ? <CalculatorView /> : login} />
             <Route path="/profile" element={isAuthenticated ? <ProfileView /> : login} />
         </Routes>
     );
