@@ -16,7 +16,7 @@ um die Daten besser zu visualisieren.
 
 ## 🛠️ Technologien
 
-- Programmiersprachen: Java, JavaScript 
+- Programmiersprachen: Java, TypeScript 
 - Frameworks: React, Spring
 - Datenbank: 
 - Infrastruktur: Docker
