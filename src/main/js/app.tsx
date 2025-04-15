@@ -1,6 +1,6 @@
 import * as React from "react";
 import {createRoot} from "react-dom/client";
-import {BrowserRouter, Routes, Route, useNavigate} from "react-router-dom";
+import {BrowserRouter, Routes, Route, Navigate} from "react-router-dom";
 import "./app.css";
 import useAuth, {AuthProvider} from "./hooks/AuthProvider";
 import LoginView from "./views/login/LoginView";
@@ -8,17 +8,12 @@ import DashboardView from "./views/dashboard/DashboardView";
 import GradesView from "./views/grades/GradesView";
 import AttendanceView from "./views/attendance/AttendanceView";
 import ProfileView from "./views/profile/ProfileView";
-import {useEffect, useState} from "react";
 
 const App = function (props: any) {
     const { isAuthenticated, loading } = useAuth();
-    const navigate = useNavigate();
+    //const navigate = useNavigate();
 
-    useEffect(() => {
-        if (!loading && !isAuthenticated) {
-            navigate('/login');
-        }
-    }, [isAuthenticated, loading, navigate]);
+    console.log(`loading: ${loading}, isAuthenticated: ${isAuthenticated}`)
 
     if (loading) {
         return (
@@ -28,13 +23,15 @@ const App = function (props: any) {
         );
     }
 
+    const login = <Navigate to={"/login"} />;
+
     return (
         <Routes>
             <Route path="/login" element={<LoginView />} />
-            <Route path="/" element={<DashboardView />} />
-            <Route path="/grades" element={<GradesView />} />
-            <Route path="/attendance" element={<AttendanceView />} />
-            <Route path="/profile" element={<ProfileView />} />
+            <Route path="/" element={isAuthenticated ? <DashboardView /> : login} />
+            <Route path="/grades" element={isAuthenticated ? <GradesView /> : login }/>
+            <Route path="/attendance" element={isAuthenticated ? <AttendanceView /> : login} />
+            <Route path="/profile" element={isAuthenticated ? <ProfileView /> : login} />
         </Routes>
     );
 }

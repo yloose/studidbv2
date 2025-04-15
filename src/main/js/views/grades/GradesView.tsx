@@ -4,17 +4,7 @@ import { Layout, NeuCard } from '../components/Layout';
 import useAuth from "../../hooks/AuthProvider";
 
 const GradesView = () => {
-    const {data, loading} = useAuth();
-
-    if (loading) {
-        return (
-            <Layout>
-                <div className="flex items-center justify-center h-64">
-                    <div className="w-12 h-12 rounded-full border-4 border-t-blue-500 border-blue-200 animate-spin"></div>
-                </div>
-            </Layout>
-        );
-    }
+    const {data} = useAuth();
 
     return (
         <Layout>

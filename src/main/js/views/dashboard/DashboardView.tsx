@@ -73,7 +73,7 @@ const SORT_OPTIONS = {
 };
 
 const DashboardView = () => {
-    const { data, loading } = useAuth();
+    const { data } = useAuth();
     const [sortBy, setSortBy] = useState(SORT_OPTIONS.BEST);
     const [showSortOptions, setShowSortOptions] = useState(false);
 
@@ -136,33 +136,21 @@ const DashboardView = () => {
 
     // ECTS per semester
     // Filter out unpassed modules and group by semester
-    const ectsData = Object.groupBy(data.examResults.filter((x) => x.grade != "5.0"), ({semester}) =>
+    const ectsData: Object = Object.groupBy(data.examResults.filter((x) => x.grade != "5.0"), ({semester}) =>
         semester
     );
     // Accumulate the ECTS for each semester and rearrange in list of objects
-    Object.keys(ectsData).forEach((key, index) => ectsData[key] = ectsData[key].reduce((acc, x) => acc + parseInt(x.ects), 0));
+    Object.keys(ectsData).forEach(key => ectsData[key] = ectsData[key].reduce((acc, x) => acc + parseInt(x.ects), 0));
     const ectsDataObj = Object.entries(ectsData).map((arr) => ({semester: arr[0], ects: arr[1]}));
 
     // Notenverteilung
-    const gradesData = Object.groupBy(data.examResults, ({grade}) =>
+    const gradesData: Object = Object.groupBy(data.examResults, ({grade}) =>
         grade
     );
 
     Object.keys(gradesData).forEach((key, index) => gradesData[key] = gradesData[key].reduce((acc, x) => acc + 1, 0));
     const gradesDataObj = Object.entries(gradesData).map((arr) => ({grade: arr[0], count: arr[1]}));
 
-console.log(gradesData);
-    console.log(gradesDataObj);
-
-    if (loading) {
-        return (
-            <Layout>
-                <div className="flex items-center justify-center h-64">
-                    <div className="w-12 h-12 rounded-full border-4 border-t-blue-500 border-blue-200 animate-spin"></div>
-                </div>
-            </Layout>
-        );
-    }
 
     return (
         <Layout>

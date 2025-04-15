@@ -34,7 +34,7 @@ export const Layout = ({ children }) => {
     // Use the global hover state to prevent resetting on route changes
     const [isHovered, setIsHovered] = useState(globalIsHovered);
     const location = useLocation();
-    const { logout, user } = useAuth();
+    const { logout } = useAuth();
     const navigate = useNavigate();
 
     const getActiveSection = () => {
