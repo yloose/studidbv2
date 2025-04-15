@@ -36,6 +36,7 @@ export const Layout = ({ children }) => {
     const location = useLocation();
     const { logout } = useAuth();
     const navigate = useNavigate();
+    const hoverTimerRef = useRef<number | null>(null);
 
     const getActiveSection = () => {
         const path = location.pathname;
@@ -53,15 +54,26 @@ export const Layout = ({ children }) => {
         navigate('/login');
     };
 
-    // Handle hover effect
+    // Improved hover handling with debounce for smoother transitions
     const handleMouseEnter = () => {
+        // Clear any existing timers
+        if (hoverTimerRef.current) {
+            clearTimeout(hoverTimerRef.current);
+            hoverTimerRef.current = null;
+        }
+
+        // Set state immediately for quick response
         setIsHovered(true);
         globalIsHovered = true;
     };
 
     const handleMouseLeave = () => {
-        setIsHovered(false);
-        globalIsHovered = false;
+        // Add a small delay before collapsing the sidebar
+        // This prevents accidental collapse when moving mouse briefly outside
+        hoverTimerRef.current = setTimeout(() => {
+            setIsHovered(false);
+            globalIsHovered = false;
+        }, 150); // 150ms delay provides a nice balance
     };
 
     // Force update the hover state when location changes
@@ -69,27 +81,39 @@ export const Layout = ({ children }) => {
         setIsHovered(globalIsHovered);
     }, [location.pathname]);
 
+    // Cleanup timer on unmount
+    useEffect(() => {
+        return () => {
+            if (hoverTimerRef.current) {
+                clearTimeout(hoverTimerRef.current);
+            }
+        };
+    }, []);
+
     return (
         <div className="min-h-screen bg-gray-100 flex">
             {/* Sidebar - Desktop */}
             <aside
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
-                className={`hidden md:flex flex-col fixed h-full bg-white shadow-xl z-20 transition-all duration-300 ${
+                className={`hidden md:flex flex-col fixed h-full bg-white shadow-xl z-20 transition-all duration-500 ease-in-out ${
                     isHovered ? 'w-64 p-6' : 'w-16 py-6 px-2'
                 }`}
             >
-                <div className={`mb-10 ${isHovered ? '' : 'flex justify-center'}`}>
-                    {isHovered ? (
-                        <>
-                            <h1 className="text-2xl font-bold text-blue-600">UniStats</h1>
-                            <p className="text-gray-500 text-sm">Student Portal</p>
-                        </>
-                    ) : (
+                <div className="mb-10 relative h-10">
+                    <div className={`absolute transition-all duration-500 ease-in-out ${
+                        isHovered ? 'opacity-0' : 'opacity-100'
+                    }`}>
                         <div className="w-10 h-10 flex items-center justify-center rounded-full bg-blue-600 text-white font-bold">
                             U
                         </div>
-                    )}
+                    </div>
+                    <div className={`absolute transition-all duration-500 ease-in-out ${
+                        isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                    }`}>
+                        <h1 className="text-2xl font-bold text-blue-600">UniStats</h1>
+                        <p className="text-gray-500 text-sm">Student Portal</p>
+                    </div>
                 </div>
 
                 <nav className="flex-1 space-y-4">
@@ -99,7 +123,7 @@ export const Layout = ({ children }) => {
                         : 'bg-gray-100 shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff] hover:shadow-[2px_2px_5px_#d1d1d1,_-2px_-2px_5px_#ffffff]'}`
                     }>
                         <TrendingUp size={isHovered ? 20 : 24} />
-                        {isHovered && <span>Dashboard</span>}
+                        {isHovered && <span className="whitespace-nowrap transition-opacity duration-500 ease-in-out">Dashboard</span>}
                     </Link>
                     <Link to="/grades" className={`flex items-center ${isHovered ? 'gap-2' : 'justify-center'} p-4 rounded-xl transition-all duration-300 
             ${activeSection === 'grades'
@@ -107,7 +131,7 @@ export const Layout = ({ children }) => {
                         : 'bg-gray-100 shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff] hover:shadow-[2px_2px_5px_#d1d1d1,_-2px_-2px_5px_#ffffff]'}`
                     }>
                         <Award size={isHovered ? 20 : 24} />
-                        {isHovered && <span>Grades</span>}
+                        {isHovered && <span className="whitespace-nowrap transition-opacity duration-500 ease-in-out">Notenübersicht</span>}
                     </Link>
                     <Link to="/attendance" className={`flex items-center ${isHovered ? 'gap-2' : 'justify-center'} p-4 rounded-xl transition-all duration-300 
             ${activeSection === 'attendance'
@@ -115,7 +139,7 @@ export const Layout = ({ children }) => {
                         : 'bg-gray-100 shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff] hover:shadow-[2px_2px_5px_#d1d1d1,_-2px_-2px_5px_#ffffff]'}`
                     }>
                         <Users size={isHovered ? 20 : 24} />
-                        {isHovered && <span>Attendance</span>}
+                        {isHovered && <span className="whitespace-nowrap transition-opacity duration-500 ease-in-out">Belegte Module</span>}
                     </Link>
                     <Link to="/profile" className={`flex items-center ${isHovered ? 'gap-2' : 'justify-center'} p-4 rounded-xl transition-all duration-300 
             ${activeSection === 'profile'
@@ -123,7 +147,7 @@ export const Layout = ({ children }) => {
                         : 'bg-gray-100 shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff] hover:shadow-[2px_2px_5px_#d1d1d1,_-2px_-2px_5px_#ffffff]'}`
                     }>
                         <User size={isHovered ? 20 : 24} />
-                        {isHovered && <span>Profile</span>}
+                        {isHovered && <span className="whitespace-nowrap transition-opacity duration-500 ease-in-out">Profil</span>}
                     </Link>
                 </nav>
 
@@ -133,7 +157,7 @@ export const Layout = ({ children }) => {
                         className={`flex items-center ${isHovered ? 'gap-2' : 'justify-center'} p-4 rounded-xl transition-all duration-300 w-full text-red-500 bg-gray-100 shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff]`}
                     >
                         <LogOut size={isHovered ? 20 : 24} />
-                        {isHovered && <span>Logout</span>}
+                        {isHovered && <span className="whitespace-nowrap transition-opacity duration-500 ease-in-out">Logout</span>}
                     </button>
                 </div>
             </aside>
@@ -149,13 +173,13 @@ export const Layout = ({ children }) => {
                 </button>
             </div>
 
-            {/* Mobile sidebar testttt */}
+            {/* Mobile sidebar */}
             {mobileMenuOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 z-10 md:hidden">
-                    <div className="bg-white w-64 h-full p-6 shadow-xl">
+                    <div className="bg-white w-64 h-full p-6 shadow-xl animate-slide-in">
                         <div className="mb-10">
-                            <h1 className="text-2xl font-bold text-blue-600">StudiDB V2</h1>
-                            <p className="text-gray-500 text-sm">Studierendendatenbank</p>
+                            <h1 className="text-2xl font-bold text-blue-600">UniStats</h1>
+                            <p className="text-gray-500 text-sm">Student Portal</p>
                         </div>
 
                         <nav className="flex-1 space-y-4">
@@ -223,7 +247,7 @@ export const Layout = ({ children }) => {
             )}
 
             {/* Main content */}
-            <main className={`flex-1 p-4 md:p-8 md:pt-6 transition-all duration-300 ${
+            <main className={`flex-1 p-4 md:p-8 md:pt-6 transition-all duration-500 ease-in-out ${
                 isHovered ? 'md:ml-64' : 'md:ml-16'
             } mt-16 md:mt-0`}>
                 <header className="mb-8">
@@ -237,5 +261,14 @@ export const Layout = ({ children }) => {
         </div>
     );
 };
+
+// Add this to your global CSS file
+// @keyframes slide-in {
+//   from { transform: translateX(-100%); }
+//   to { transform: translateX(0); }
+// }
+// .animate-slide-in {
+//   animation: slide-in 0.3s ease-out;
+// }
 
 export default Layout;
