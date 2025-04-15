@@ -15,6 +15,7 @@ const GradesView = () => {
                         <thead>
                         <tr className="border-b border-gray-200">
                             <th className="pb-3 font-semibold text-gray-600">Modul</th>
+                            <th className="pb-3 font-semibold text-gray-600">Semester</th>
                             <th className="pb-3 font-semibold text-gray-600">Modulcode</th>
                             <th className="pb-3 font-semibold text-gray-600">ECTS</th>
                             <th className="pb-3 font-semibold text-gray-600">Note</th>
@@ -25,6 +26,7 @@ const GradesView = () => {
                         {data?.examResults?.map((course, index) => (
                             <tr key={index} className={index !== data.length - 1 ? "border-b border-gray-100" : ""}>
                                 <td className="py-4">{course.moduleName}</td>
+                                <td className="py-4">{course.semester}</td>
                                 <td className="py-4">{course.moduleCode}</td>
                                 <td className="py-4">{course.ects}</td>
                                 <td className="py-4 font-medium text-blue-600">
