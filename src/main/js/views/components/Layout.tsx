@@ -41,9 +41,9 @@ export const Layout = ({ children }) => {
     const getActiveSection = () => {
         const path = location.pathname;
         if (path === '/') return 'dashboard';
-        if (path === '/grades') return 'grades';
-        if (path === '/attendance') return 'attendance';
-        if (path === '/profile') return 'profile';
+        if (path === '/grades') return 'Notenübersicht';
+        if (path === '/attendance') return 'Belegte Modoule';
+        if (path === '/profile') return 'Profil';
         return '';
     };
 
@@ -111,8 +111,8 @@ export const Layout = ({ children }) => {
                     <div className={`absolute transition-all duration-500 ease-in-out ${
                         isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'
                     }`}>
-                        <h1 className="text-2xl font-bold text-blue-600">UniStats</h1>
-                        <p className="text-gray-500 text-sm">Student Portal</p>
+                        <h1 className="text-2xl font-bold text-blue-600">StudiDB V2</h1>
+                        <p className="text-gray-500 text-sm">Studierendendatenbank</p>
                     </div>
                 </div>
 
@@ -126,7 +126,7 @@ export const Layout = ({ children }) => {
                         {isHovered && <span className="whitespace-nowrap transition-opacity duration-500 ease-in-out">Dashboard</span>}
                     </Link>
                     <Link to="/grades" className={`flex items-center ${isHovered ? 'gap-2' : 'justify-center'} p-4 rounded-xl transition-all duration-300 
-            ${activeSection === 'grades'
+            ${activeSection === 'Notenübersicht'
                         ? 'bg-blue-50 text-blue-600 shadow-[inset_4px_4px_8px_#d1d1d1,_inset_-4px_-4px_8px_#ffffff]'
                         : 'bg-gray-100 shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff] hover:shadow-[2px_2px_5px_#d1d1d1,_-2px_-2px_5px_#ffffff]'}`
                     }>
@@ -134,7 +134,7 @@ export const Layout = ({ children }) => {
                         {isHovered && <span className="whitespace-nowrap transition-opacity duration-500 ease-in-out">Notenübersicht</span>}
                     </Link>
                     <Link to="/attendance" className={`flex items-center ${isHovered ? 'gap-2' : 'justify-center'} p-4 rounded-xl transition-all duration-300 
-            ${activeSection === 'attendance'
+            ${activeSection === 'Belegte Modoule'
                         ? 'bg-blue-50 text-blue-600 shadow-[inset_4px_4px_8px_#d1d1d1,_inset_-4px_-4px_8px_#ffffff]'
                         : 'bg-gray-100 shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff] hover:shadow-[2px_2px_5px_#d1d1d1,_-2px_-2px_5px_#ffffff]'}`
                     }>
@@ -142,7 +142,7 @@ export const Layout = ({ children }) => {
                         {isHovered && <span className="whitespace-nowrap transition-opacity duration-500 ease-in-out">Belegte Module</span>}
                     </Link>
                     <Link to="/profile" className={`flex items-center ${isHovered ? 'gap-2' : 'justify-center'} p-4 rounded-xl transition-all duration-300 
-            ${activeSection === 'profile'
+            ${activeSection === 'Profil'
                         ? 'bg-blue-50 text-blue-600 shadow-[inset_4px_4px_8px_#d1d1d1,_inset_-4px_-4px_8px_#ffffff]'
                         : 'bg-gray-100 shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff] hover:shadow-[2px_2px_5px_#d1d1d1,_-2px_-2px_5px_#ffffff]'}`
                     }>
@@ -198,7 +198,7 @@ export const Layout = ({ children }) => {
                             <Link
                                 to="/grades"
                                 className={`flex items-center gap-2 p-4 rounded-xl transition-all duration-300 
-                  ${activeSection === 'grades'
+                  ${activeSection === 'Notenübersicht'
                                     ? 'bg-blue-50 text-blue-600 shadow-[inset_4px_4px_8px_#d1d1d1,_inset_-4px_-4px_8px_#ffffff]'
                                     : 'bg-gray-100 shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff]'}`
                                 }
@@ -210,7 +210,7 @@ export const Layout = ({ children }) => {
                             <Link
                                 to="/attendance"
                                 className={`flex items-center gap-2 p-4 rounded-xl transition-all duration-300 
-                  ${activeSection === 'attendance'
+                  ${activeSection === 'Belegte Modoule'
                                     ? 'bg-blue-50 text-blue-600 shadow-[inset_4px_4px_8px_#d1d1d1,_inset_-4px_-4px_8px_#ffffff]'
                                     : 'bg-gray-100 shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff]'}`
                                 }
@@ -222,7 +222,7 @@ export const Layout = ({ children }) => {
                             <Link
                                 to="/profile"
                                 className={`flex items-center gap-2 p-4 rounded-xl transition-all duration-300 
-                  ${activeSection === 'profile'
+                  ${activeSection === 'Profil'
                                     ? 'bg-blue-50 text-blue-600 shadow-[inset_4px_4px_8px_#d1d1d1,_inset_-4px_-4px_8px_#ffffff]'
                                     : 'bg-gray-100 shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff]'}`
                                 }
