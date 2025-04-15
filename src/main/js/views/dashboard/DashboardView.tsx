@@ -73,7 +73,7 @@ const SORT_OPTIONS = {
 };
 
 const DashboardView = () => {
-    const { user, data, loading } = useAuth();
+    const { data, loading } = useAuth();
     const [sortBy, setSortBy] = useState(SORT_OPTIONS.BEST);
     const [showSortOptions, setShowSortOptions] = useState(false);
 
@@ -171,9 +171,9 @@ console.log(gradesData);
                     <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                         {/* Left Info */}
                         <div>
-                            <h2 className="text-2xl font-bold text-gray-700">Willkommen zurück, {user?.name}</h2>
+                            <h2 className="text-2xl font-bold text-gray-700">Willkommen zurück, {data.userInfo.name}</h2>
                             <p className="text-gray-500">
-                                Matrikelnummer: {user?.studentId} | {user?.program} - Semester {user?.year}
+                                Matrikelnummer: n/a | {data.userSemester.major} - Semester {data.userSemester.semester}
                             </p>
                         </div>
 

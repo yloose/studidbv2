@@ -4,7 +4,6 @@ import {Simulate} from "react-dom/test-utils";
 interface AuthContextType {
     isAuthenticated: boolean;
     loading: boolean;
-    user: any | null;
     login: (username: string, password: string ) => Promise<void>;
     logout: () => void;
     data: any | null;
@@ -15,7 +14,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [user, setUser] = useState<any | null>(null);
     const [data, setData] = useState<any | null>(null);
 
     useEffect(() => {
@@ -26,17 +24,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (data != null) {
             const parsedData = JSON.parse(data);
             setData(parsedData);
-
-            setUser({
-                // TODO Matrikelnummer holen aus login
-                name: parsedData.userInfo.name,
-                address: parsedData.userInfo.address,
-                phone: parsedData.userInfo.phone,
-                mail: parsedData.userInfo.email,
-                studentId: "UNI2025124",
-                program: parsedData.userSemester.major,
-                year: parsedData.userSemester.semester,
-            });
         }
         setLoading(false);
 
@@ -65,12 +52,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const logout = () => {
         localStorage.removeItem('authToken');
-        setUser(null);
         setIsAuthenticated(false);
     };
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, loading, user, login, logout, data }}>
+        <AuthContext.Provider value={{ isAuthenticated, loading, login, logout, data }}>
             {children}
         </AuthContext.Provider>
     );
