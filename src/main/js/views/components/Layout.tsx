@@ -149,13 +149,13 @@ export const Layout = ({ children }) => {
                 </button>
             </div>
 
-            {/* Mobile sidebar */}
+            {/* Mobile sidebar testttt */}
             {mobileMenuOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 z-10 md:hidden">
                     <div className="bg-white w-64 h-full p-6 shadow-xl">
                         <div className="mb-10">
-                            <h1 className="text-2xl font-bold text-blue-600">UniStats</h1>
-                            <p className="text-gray-500 text-sm">Student Portal</p>
+                            <h1 className="text-2xl font-bold text-blue-600">StudiDB V2</h1>
+                            <p className="text-gray-500 text-sm">Studierendendatenbank</p>
                         </div>
 
                         <nav className="flex-1 space-y-4">
@@ -181,7 +181,7 @@ export const Layout = ({ children }) => {
                                 onClick={() => setMobileMenuOpen(false)}
                             >
                                 <Award size={20} />
-                                <span>Grades</span>
+                                <span>Notenübersicht</span>
                             </Link>
                             <Link
                                 to="/attendance"
@@ -193,7 +193,7 @@ export const Layout = ({ children }) => {
                                 onClick={() => setMobileMenuOpen(false)}
                             >
                                 <Users size={20} />
-                                <span>Attendance</span>
+                                <span>Belegte Module</span>
                             </Link>
                             <Link
                                 to="/profile"
@@ -205,7 +205,7 @@ export const Layout = ({ children }) => {
                                 onClick={() => setMobileMenuOpen(false)}
                             >
                                 <User size={20} />
-                                <span>Profile</span>
+                                <span>Profil</span>
                             </Link>
                         </nav>
 
