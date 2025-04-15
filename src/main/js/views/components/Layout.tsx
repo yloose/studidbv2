@@ -117,7 +117,7 @@ export const Layout = ({ children }) => {
                 </div>
 
                 <nav className="flex-1 space-y-4">
-                    <Link to="/" className={`flex items-center ${isHovered ? 'gap-2' : 'justify-center'} p-4 rounded-xl transition-all duration-300 
+                    <Link to="/" className={`flex items-center overflow-hidden ${isHovered ? 'gap-2' : 'justify-center'} p-4 rounded-xl transition-all duration-300 
             ${activeSection === 'dashboard'
                         ? 'bg-blue-50 text-blue-600 shadow-[inset_4px_4px_8px_#d1d1d1,_inset_-4px_-4px_8px_#ffffff]'
                         : 'bg-gray-100 shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff] hover:shadow-[2px_2px_5px_#d1d1d1,_-2px_-2px_5px_#ffffff]'}`
@@ -125,7 +125,7 @@ export const Layout = ({ children }) => {
                         <TrendingUp size={isHovered ? 20 : 24} />
                         {isHovered && <span className="whitespace-nowrap transition-opacity duration-500 ease-in-out">Dashboard</span>}
                     </Link>
-                    <Link to="/grades" className={`flex items-center ${isHovered ? 'gap-2' : 'justify-center'} p-4 rounded-xl transition-all duration-300 
+                    <Link to="/grades" className={`flex items-center overflow-hidden ${isHovered ? 'gap-2' : 'justify-center'} p-4 rounded-xl transition-all duration-300 
             ${activeSection === 'Notenübersicht'
                         ? 'bg-blue-50 text-blue-600 shadow-[inset_4px_4px_8px_#d1d1d1,_inset_-4px_-4px_8px_#ffffff]'
                         : 'bg-gray-100 shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff] hover:shadow-[2px_2px_5px_#d1d1d1,_-2px_-2px_5px_#ffffff]'}`
@@ -133,7 +133,7 @@ export const Layout = ({ children }) => {
                         <Award size={isHovered ? 20 : 24} />
                         {isHovered && <span className="whitespace-nowrap transition-opacity duration-500 ease-in-out">Notenübersicht</span>}
                     </Link>
-                    <Link to="/attendance" className={`flex items-center ${isHovered ? 'gap-2' : 'justify-center'} p-4 rounded-xl transition-all duration-300 
+                    <Link to="/attendance" className={`flex items-center overflow-hidden ${isHovered ? 'gap-2' : 'justify-center'} p-4 rounded-xl transition-all duration-300 
             ${activeSection === 'Belegte Modoule'
                         ? 'bg-blue-50 text-blue-600 shadow-[inset_4px_4px_8px_#d1d1d1,_inset_-4px_-4px_8px_#ffffff]'
                         : 'bg-gray-100 shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff] hover:shadow-[2px_2px_5px_#d1d1d1,_-2px_-2px_5px_#ffffff]'}`
@@ -141,7 +141,7 @@ export const Layout = ({ children }) => {
                         <Users size={isHovered ? 20 : 24} />
                         {isHovered && <span className="whitespace-nowrap transition-opacity duration-500 ease-in-out">Belegte Module</span>}
                     </Link>
-                    <Link to="/profile" className={`flex items-center ${isHovered ? 'gap-2' : 'justify-center'} p-4 rounded-xl transition-all duration-300 
+                    <Link to="/profile" className={`flex items-center overflow-hidden ${isHovered ? 'gap-2' : 'justify-center'} p-4 rounded-xl transition-all duration-300 
             ${activeSection === 'Profil'
                         ? 'bg-blue-50 text-blue-600 shadow-[inset_4px_4px_8px_#d1d1d1,_inset_-4px_-4px_8px_#ffffff]'
                         : 'bg-gray-100 shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff] hover:shadow-[2px_2px_5px_#d1d1d1,_-2px_-2px_5px_#ffffff]'}`
