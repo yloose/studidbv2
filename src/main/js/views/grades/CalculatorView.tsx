@@ -1,25 +1,75 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { ArrowUpDown } from 'lucide-react';
 import { Layout, NeuCard } from '../components/Layout';
 import useAuth from "../../hooks/AuthProvider";
 
-const CalculatorView = () => {
-    const { data, loading } = useAuth();
+const getCurrentSemester = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth() + 1;
 
+    if (month >= 4 && month <= 9) {
+        return `SS ${year - 2000}`;
+    } else {
+        return `WS ${year - 2000}/${year - 2000 + 1}`;
+    }
+};
+
+// Function to generate upcoming semesters
+const getUpcomingSemesters = (count = 5) => {
+    const semesters = [];
+    let year = new Date().getFullYear();
+    let month = new Date().getMonth() + 1;
+
+    if (month >= 4 && month <= 9) {
+        semesters.push(`WS ${year - 2000}/${year + 1 - 2000}`);
+        for (let i = 1; i < count; i++) {
+            if (i % 2 === 1) { // Odd iterations are SS
+                semesters.push(`SS ${year + Math.ceil(i/2) - 2000}`);
+            } else { // Even iterations are WS
+                const winterYear = year + Math.floor(i/2);
+                semesters.push(`WS ${winterYear - 2000}/${winterYear + 1 - 2000}`);
+            }
+        }
+    } else {
+        semesters.push(`SS ${year - 2000}`);
+        for (let i = 0; i < count; i++) {
+            if (i % 2 === 0) { // Even iterations are SS
+                semesters.push(`SS ${year + Math.floor(i/2) + 1}`);
+            } else { // Odd iterations are WS
+                const winterYear = year + Math.floor(i/2) + 1;
+                semesters.push(`WS ${winterYear - 2000}/${winterYear + 1 - 2000}`);
+            }
+        }
+    }
+    return semesters;
+};
+
+const CalculatorView = () => {
+
+    // State for semester options
+    const [semesterOptions, setSemesterOptions] = useState([]);
+    const currentSystemSemester = getCurrentSemester();
+
+    const { data, loading } = useAuth();
+    const [hypotheticalModules, setHypotheticalModules] = useState([]);
     const [newModule, setNewModule] = useState({
         name: '',
         grade: '',
-        credits: '',
+        ects: '',
         semester: ''
     });
 
-    const [currentSemester, setCurrentSemester] = useState('SS 23');
+    const filteredModules = data?.examResults?.filter(module => parseFloat(module.grade) !== 5.0) || [];
+    const [currentSemester, setCurrentSemester] = useState('');
     const [showHypothetical, setShowHypothetical] = useState(false);
     const [showSortOptions, setShowSortOptions] = useState(false);
     const [sortBy, setSortBy] = useState('best');
 
-    // Get filtered modules (excluding those with grade 5.0)
-    const filteredModules = data.examResults.filter(module => parseFloat(module.grade) !== 5.0);
+    useEffect(() => {
+        setSemesterOptions(getUpcomingSemesters(5));
+        setCurrentSemester(currentSystemSemester);
+    });
 
     // Calculate simple average
     const calculateSimpleAverage = () => {
@@ -44,24 +94,34 @@ const CalculatorView = () => {
         return filteredModules.reduce((total, module) => total + parseFloat(module.ects), 0);
     };
 
-    // Calculate hypothetical average with new module
+    // Calculate hypothetical average with all hypothetical modules
     const calculateHypotheticalAverage = () => {
-        if (!newModule.grade || !newModule.credits || !data || !data.examResults) return calculateWeightedAverage();
+        if ((!newModule.grade || !newModule.ects) && hypotheticalModules.length === 0)
+            return calculateWeightedAverage();
 
-        const hypotheticalModules = [
+        // Combine actual modules with hypothetical ones
+        const allModules = [
             ...filteredModules.map(module => ({
                 grade: parseFloat(module.grade),
                 ects: parseFloat(module.ects)
             })),
-            {
-                grade: parseFloat(newModule.grade),
-                ects: parseFloat(newModule.credits)
-            }
+            ...hypotheticalModules.map(module => ({
+                grade: parseFloat(module.grade),
+                ects: parseFloat(module.ects)
+            }))
         ];
 
-        const totalWeightedGrade = hypotheticalModules.reduce((total, module) =>
+        // Add the new module if it has values
+        if (newModule.grade && newModule.ects) {
+            allModules.push({
+                grade: parseFloat(newModule.grade),
+                ects: parseFloat(newModule.ects)
+            });
+        }
+
+        const totalWeightedGrade = allModules.reduce((total, module) =>
             total + (module.grade * module.ects), 0);
-        const totalCredits = hypotheticalModules.reduce((total, module) =>
+        const totalCredits = allModules.reduce((total, module) =>
             total + module.ects, 0);
 
         return (totalWeightedGrade / totalCredits).toFixed(2);
@@ -75,20 +135,37 @@ const CalculatorView = () => {
         });
     };
 
-    // Note: Since we're not using the modules state anymore, these functions are just placeholders
-    // In a real application, you would need to modify the data object through an API or other method
     const handleAddModule = () => {
-        if (!newModule.name || !newModule.grade || !newModule.credits) {
+        if (!newModule.name || !newModule.grade || !newModule.ects) {
             alert('Please fill in all fields');
             return;
         }
 
-        alert('This is a demo. In a real application, this would add a new module to your records.');
-        setNewModule({ name: '', grade: '', credits: '', semester: '' });
+        // Create a new hypothetical module
+        const semester = newModule.semester || currentSemester;
+        const moduleToAdd = {
+            ...newModule,
+            semester,
+            id: `hypo-${Date.now()}`, // Add a unique ID
+            moduleCode: `HYPO-${hypotheticalModules.length + 1}`,
+            moduleName: newModule.name,
+            lecturer: 'Hypothetical',
+        };
+
+        // Add to hypothetical modules
+        setHypotheticalModules([...hypotheticalModules, moduleToAdd]);
+
+        // Clear the form
+        setNewModule({ name: '', grade: '', ects: '', semester: '' });
+
+        // Show hypothetical section if it's not already shown
+        if (!showHypothetical) {
+            setShowHypothetical(true);
+        }
     };
 
-    const handleDeleteModule = (moduleCode) => {
-        alert('This is a demo. In a real application, this would delete the module from your records.');
+    const handleDeleteHypotheticalModule = (id) => {
+        setHypotheticalModules(hypotheticalModules.filter(module => module.id !== id));
     };
 
     const handleSemesterChange = (e) => {
@@ -117,17 +194,35 @@ const CalculatorView = () => {
     const getSortedModules = () => {
         switch (sortBy) {
             case 'best':
-                return filteredModules.sort((a, b) => parseFloat(a.grade) - parseFloat(b.grade));
+                return [...filteredModules].sort((a, b) => parseFloat(a.grade) - parseFloat(b.grade));
             case 'worst':
-                return filteredModules.sort((a, b) => parseFloat(b.grade) - parseFloat(a.grade));
+                return [...filteredModules].sort((a, b) => parseFloat(b.grade) - parseFloat(a.grade));
             case 'latest':
-                return filteredModules.sort((a, b) => a.semester < b.semester ? 1 : -1);
+                return [...filteredModules].sort((a, b) => a.semester < b.semester ? 1 : -1);
             case 'oldest':
-                return filteredModules.sort((a, b) => a.semester > b.semester ? 1 : -1);
+                return [...filteredModules].sort((a, b) => a.semester > b.semester ? 1 : -1);
             case 'highest-ects':
-                return filteredModules.sort((a, b) => parseFloat(b.ects) - parseFloat(a.ects));
+                return [...filteredModules].sort((a, b) => parseFloat(b.ects) - parseFloat(a.ects));
             default:
                 return filteredModules;
+        }
+    };
+
+    // Sort hypothetical modules
+    const getSortedHypotheticalModules = () => {
+        switch (sortBy) {
+            case 'best':
+                return [...hypotheticalModules].sort((a, b) => parseFloat(a.grade) - parseFloat(b.grade));
+            case 'worst':
+                return [...hypotheticalModules].sort((a, b) => parseFloat(b.grade) - parseFloat(a.grade));
+            case 'latest':
+                return [...hypotheticalModules].sort((a, b) => a.semester < b.semester ? 1 : -1);
+            case 'oldest':
+                return [...hypotheticalModules].sort((a, b) => a.semester > b.semester ? 1 : -1);
+            case 'highest-ects':
+                return [...hypotheticalModules].sort((a, b) => parseFloat(b.ects) - parseFloat(a.ects));
+            default:
+                return hypotheticalModules;
         }
     };
 
@@ -174,22 +269,6 @@ const CalculatorView = () => {
                             <NeuCard>
                                 <h3 className="text-xl font-semibold text-gray-700 mb-4">Modul hinzufügen</h3>
 
-                                {/* Current Semester Select */}
-                                <div className="mb-4">
-                                    <label className="text-sm font-medium text-gray-600 mb-2 block">Current Semester</label>
-                                    <select
-                                        value={currentSemester}
-                                        onChange={handleSemesterChange}
-                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    >
-                                        <option value="WS 21/22">WS 21/22</option>
-                                        <option value="SS 22">SS 22</option>
-                                        <option value="WS 22/23">WS 22/23</option>
-                                        <option value="SS 23">SS 23</option>
-                                        <option value="WS 23/24">WS 23/24</option>
-                                    </select>
-                                </div>
-
                                 {/* Add New Module Form */}
                                 <div className="grid grid-cols-1 gap-4 mb-4">
                                     <div>
@@ -223,8 +302,8 @@ const CalculatorView = () => {
                                         <label className="text-sm font-medium text-gray-600 mb-2 block">ECTS</label>
                                         <input
                                             type="number"
-                                            name="credits"
-                                            value={newModule.credits}
+                                            name="ects"
+                                            value={newModule.ects}
                                             onChange={handleInputChange}
                                             className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                             placeholder="e.g. 6"
@@ -240,12 +319,12 @@ const CalculatorView = () => {
                                             onChange={handleInputChange}
                                             className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         >
-                                            <option value="">Current ({currentSemester})</option>
-                                            <option value="WS 21/22">WS 21/22</option>
-                                            <option value="SS 22">SS 22</option>
-                                            <option value="WS 22/23">WS 22/23</option>
-                                            <option value="SS 23">SS 23</option>
-                                            <option value="WS 23/24">WS 23/24</option>
+                                            <option value="">Derzeitig ({currentSemester})</option>
+                                            {semesterOptions.map((semester, index) => (
+                                                <option key={`semester-${index}`} value={semester}>
+                                                    {semester}
+                                                </option>
+                                            ))}
                                         </select>
                                     </div>
                                 </div>
@@ -273,7 +352,7 @@ const CalculatorView = () => {
                                 </div>
 
                                 {/* Hypothetical Grade */}
-                                {showHypothetical && newModule.grade && newModule.credits && (
+                                {showHypothetical && (newModule.grade || hypotheticalModules.length > 0) && (
                                     <div className="mt-4 p-4 bg-blue-50 rounded-lg">
                                         <h2 className="text-sm font-medium text-gray-600 mb-2">Hypothetical Average</h2>
                                         <div className="flex items-center">
@@ -291,7 +370,7 @@ const CalculatorView = () => {
                         <div className="md:w-2/3">
                             <NeuCard className="h-full">
                                 <div className="flex justify-between items-center mb-4">
-                                    <h3 className="text-xl font-semibold text-gray-700">All Modules</h3>
+                                    <h3 className="text-xl font-semibold text-gray-700">Deine Module</h3>
 
                                     {/* Sort dropdown */}
                                     <div className="relative">
@@ -359,38 +438,74 @@ const CalculatorView = () => {
                                     {!data || !data.examResults || filteredModules.length === 0 ? (
                                         <p className="text-center py-8 text-gray-500">No passing modules found. Modules with grade 5.0 are excluded.</p>
                                     ) : (
-                                        getSortedModules().map((module, index, array) => (
-                                            <div
-                                                key={`${module.moduleCode}-${module.moduleName}-${index}`}
-                                                className={`flex justify-between items-center py-3 ${
-                                                    index !== array.length - 1 ? 'border-b border-gray-200' : ''
-                                                }`}
-                                            >
-                                                <div>
-                                                    <h4 className="font-medium text-gray-800">{module.moduleName}</h4>
-                                                    <p className="text-sm text-gray-500">{module.semester} • {module.moduleCode}</p>
-                                                    <p className="text-xs text-gray-400">{module.lecturer}</p>
+                                        <div className="space-y-4">
+                                            {/* Hypothetical modules section */}
+                                            {showHypothetical && hypotheticalModules.length > 0 && (
+                                                <div className="pt-2 border-b-2 border-gray-200">
+                                                    <h4 className="text-lg font-semibold text-gray-700 mb-3">Neu hinzugefügte Module</h4>
+                                                    {getSortedHypotheticalModules().map((module, index) => (
+                                                        <div
+                                                            key={module.id}
+                                                            className={`flex justify-between items-center py-3 ${
+                                                                index !== hypotheticalModules.length - 1 ? 'border-b border-gray-200' : ''
+                                                            }`}
+                                                        >
+                                                            <div>
+                                                                <h4 className="font-medium text-gray-800">{module.name}</h4>
+                                                                <p className="text-sm text-gray-500">{module.semester} • {module.moduleCode}</p>
+                                                                <p className="text-xs text-gray-400">Hypothetical</p>
+                                                            </div>
+                                                            <div className="flex items-center gap-3">
+                                                                <span className="bg-blue-50 text-blue-600 px-2 py-1 rounded text-sm">{module.ects} ECTS</span>
+                                                                <span className={`font-bold text-lg ${
+                                                                    parseFloat(module.grade) <= 1.5 ? 'text-green-600' :
+                                                                        parseFloat(module.grade) <= 2.5 ? 'text-blue-600' :
+                                                                            parseFloat(module.grade) <= 3.5 ? 'text-orange-500' : 'text-red-500'
+                                                                }`}>
+                                                                {parseFloat(module.grade).toFixed(1)}
+                                                            </span>
+                                                                <button
+                                                                    onClick={() => handleDeleteHypotheticalModule(module.id)}
+                                                                    className="text-gray-400 hover:text-gray-600 ml-2"
+                                                                >
+                                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                                    </svg>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    ))}
                                                 </div>
-                                                <div className="flex items-center gap-3">
-                                                    <span className="bg-blue-50 text-blue-600 px-2 py-1 rounded text-sm">{module.ects} ECTS</span>
-                                                    <span className={`font-bold text-lg ${
-                                                        parseFloat(module.grade) <= 1.5 ? 'text-green-600' :
-                                                            parseFloat(module.grade) <= 2.5 ? 'text-blue-600' :
-                                                                parseFloat(module.grade) <= 3.5 ? 'text-orange-500' : 'text-red-500'
-                                                    }`}>
-                                                    {parseFloat(module.grade).toFixed(1)}
-                                                </span>
-                                                    <button
-                                                        onClick={() => handleDeleteModule(module.moduleCode)}
-                                                        className="text-gray-400 hover:text-gray-600 ml-2"
+                                            )}
+
+                                            {/* Actual modules section */}
+                                            <div className="pb-2">
+                                                {getSortedModules().map((module, index, array) => (
+                                                    <div
+                                                        key={`${module.moduleCode}-${module.moduleName}-${index}`}
+                                                        className={`flex justify-between items-center py-3 ${
+                                                            index !== array.length - 1 ? 'border-b border-gray-200' : ''
+                                                        }`}
                                                     >
-                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                                                        </svg>
-                                                    </button>
-                                                </div>
+                                                        <div>
+                                                            <h4 className="font-medium text-gray-800">{module.moduleName}</h4>
+                                                            <p className="text-sm text-gray-500">{module.semester} • {module.moduleCode}</p>
+                                                            <p className="text-xs text-gray-400">{module.lecturer}</p>
+                                                        </div>
+                                                        <div className="flex items-center gap-3">
+                                                            <span className="bg-blue-50 text-blue-600 px-2 py-1 rounded text-sm">{Math.floor(module.ects)} ECTS</span>
+                                                            <span className={`font-bold text-lg ${
+                                                                parseFloat(module.grade) <= 1.5 ? 'text-green-600' :
+                                                                    parseFloat(module.grade) <= 2.5 ? 'text-blue-600' :
+                                                                        parseFloat(module.grade) <= 3.5 ? 'text-orange-500' : 'text-red-500'
+                                                            }`}>
+                                                            {parseFloat(module.grade).toFixed(1)}
+                                                        </span>
+                                                        </div>
+                                                    </div>
+                                                ))}
                                             </div>
-                                        ))
+                                        </div>
                                     )}
                                 </div>
                             </NeuCard>
