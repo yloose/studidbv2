@@ -19,14 +19,10 @@ const CalculatorView = () => {
     const [sortBy, setSortBy] = useState('best');
 
     // Get filtered modules (excluding those with grade 5.0)
-    const getFilteredModules = () => {
-        if (!data || !data.examResults) return [];
-        return data.examResults.filter(module => parseFloat(module.grade) !== 5.0);
-    };
+    const filteredModules = data.examResults.filter(module => parseFloat(module.grade) !== 5.0);
 
     // Calculate simple average
     const calculateSimpleAverage = () => {
-        const filteredModules = getFilteredModules();
         if (filteredModules.length === 0) return 0;
         const sum = filteredModules.reduce((total, module) => total + parseFloat(module.grade), 0);
         return (sum / filteredModules.length).toFixed(2);
@@ -34,7 +30,6 @@ const CalculatorView = () => {
 
     // Calculate weighted average
     const calculateWeightedAverage = () => {
-        const filteredModules = getFilteredModules();
         if (filteredModules.length === 0) return 0;
         const totalWeightedGrade = filteredModules.reduce((total, module) =>
             total + (parseFloat(module.grade) * parseFloat(module.ects)), 0);
@@ -45,7 +40,6 @@ const CalculatorView = () => {
 
     // Calculate total ECTS
     const calculateTotalECTS = () => {
-        const filteredModules = getFilteredModules();
         if (filteredModules.length === 0) return 0;
         return filteredModules.reduce((total, module) => total + parseFloat(module.ects), 0);
     };
@@ -53,9 +47,6 @@ const CalculatorView = () => {
     // Calculate hypothetical average with new module
     const calculateHypotheticalAverage = () => {
         if (!newModule.grade || !newModule.credits || !data || !data.examResults) return calculateWeightedAverage();
-
-        // Skip modules with grade 5.0
-        const filteredModules = getFilteredModules();
 
         const hypotheticalModules = [
             ...filteredModules.map(module => ({
@@ -124,8 +115,6 @@ const CalculatorView = () => {
 
     // Sort examResults based on selected option
     const getSortedModules = () => {
-        const filteredModules = getFilteredModules();
-
         switch (sortBy) {
             case 'best':
                 return filteredModules.sort((a, b) => parseFloat(a.grade) - parseFloat(b.grade));
@@ -367,7 +356,7 @@ const CalculatorView = () => {
                                 </div>
 
                                 <div className="overflow-hidden">
-                                    {!data || !data.examResults || getFilteredModules().length === 0 ? (
+                                    {!data || !data.examResults || filteredModules.length === 0 ? (
                                         <p className="text-center py-8 text-gray-500">No passing modules found. Modules with grade 5.0 are excluded.</p>
                                     ) : (
                                         getSortedModules().map((module, index, array) => (

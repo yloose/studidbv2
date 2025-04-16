@@ -172,7 +172,7 @@ const DashboardView = () => {
                             <div className="p-4 bg-blue-50 rounded-xl shadow-[inset_3px_3px_6px_#d1d1d1,_inset_-3px_-3px_6px_#ffffff]">
                                 <div className="text-center">
                                     <p className="text-gray-500">Schnitt</p>
-                                    <p className="text-3xl font-bold text-blue-600">{((data?.examResults?.filter(x => x.grade != "5.0").reduce((sum, curr) => sum + parseInt(curr.grade), 0)) / data?.examResults?.filter(x => x.grade != "5.0").length).toFixed(2)}</p>
+                                    <p className="text-3xl font-bold text-blue-600">{((data?.examResults?.filter(x => x.grade != "5.0").reduce((sum, curr) => sum + parseFloat(curr.grade), 0)) / data?.examResults?.filter(x => x.grade != "5.0").length).toFixed(2)}</p>
                                 </div>
                             </div>
 

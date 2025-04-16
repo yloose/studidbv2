@@ -14,8 +14,6 @@ const App = function (props: any) {
     const { isAuthenticated, loading } = useAuth();
     //const navigate = useNavigate();
 
-    console.log(`loading: ${loading}, isAuthenticated: ${isAuthenticated}`)
-
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-100 flex items-center justify-center">
