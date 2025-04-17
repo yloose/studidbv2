@@ -5,7 +5,7 @@ import useAuth from "../../hooks/AuthProvider";
 
 const GradesView = () => {
     const {data} = useAuth();
-    const [sortConfig, setSortConfig] = useState<{key: string, direction: "asc" | "desc"}>({key: "grade", direction: "desc"})
+    const [sortConfig, setSortConfig] = useState<{key: string, direction: "asc" | "desc"}>({key: "semester", direction: "desc"})
 
     const sortedResults = data.examResults;
     const sortDirection = sortConfig.direction == "asc" ? 1 : -1;
