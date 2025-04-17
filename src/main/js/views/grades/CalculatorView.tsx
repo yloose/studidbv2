@@ -3,6 +3,22 @@ import { ArrowUpDown } from 'lucide-react';
 import { Layout, NeuCard } from '../components/Layout';
 import useAuth from "../../hooks/AuthProvider";
 
+// Lookup data structure for calculation weighted avg
+const GRUND_MODULES = new Set([
+    "Inf-CompSys",
+    "Inf-Math-A",
+    "Inf-Math-B",
+    "infCN-01a",
+    "infEAlg-01a",
+    "infEInf-01a",
+    "infProgOO-01a",
+    "infEWInf-01a"
+]);
+
+function isGrundModule(moduleCode) {
+    return GRUND_MODULES.has(moduleCode);
+}
+
 const getCurrentSemester = () => {
     const today = new Date();
     const year = today.getFullYear();
@@ -69,7 +85,7 @@ const CalculatorView = () => {
     useEffect(() => {
         setSemesterOptions(getUpcomingSemesters(5));
         setCurrentSemester(currentSystemSemester);
-    });
+    }, []); // Add empty dependency array to run only once on mount
 
     // Calculate simple average
     const calculateSimpleAverage = () => {
@@ -78,11 +94,13 @@ const CalculatorView = () => {
         return (sum / filteredModules.length).toFixed(2);
     };
 
+
     // Calculate weighted average
     const calculateWeightedAverage = () => {
         if (filteredModules.length === 0) return 0;
-        const totalWeightedGrade = filteredModules.reduce((total, module) =>
-            total + (parseFloat(module.grade) * parseFloat(module.ects)), 0);
+        const totalWeightedGrade = filteredModules.reduce((total, module) => isGrundModule(module.moduleCode)
+            ? total + (parseFloat(module.grade) * (parseInt(module.ects)) / 2)
+            : total + (parseFloat(module.grade) * parseInt(module.ects)), 0);
         const totalCredits = filteredModules.reduce((total, module) =>
             total + parseFloat(module.ects), 0);
         return (totalWeightedGrade / totalCredits).toFixed(2);
@@ -103,11 +121,13 @@ const CalculatorView = () => {
         const allModules = [
             ...filteredModules.map(module => ({
                 grade: parseFloat(module.grade),
-                ects: parseFloat(module.ects)
+                ects: parseFloat(module.ects),
+                moduleCode: module.moduleCode // Keep moduleCode for grund module check
             })),
             ...hypotheticalModules.map(module => ({
                 grade: parseFloat(module.grade),
-                ects: parseFloat(module.ects)
+                ects: parseFloat(module.ects),
+                moduleCode: module.moduleCode // Keep moduleCode for grund module check
             }))
         ];
 
@@ -115,12 +135,19 @@ const CalculatorView = () => {
         if (newModule.grade && newModule.ects) {
             allModules.push({
                 grade: parseFloat(newModule.grade),
-                ects: parseFloat(newModule.ects)
+                ects: parseFloat(newModule.ects),
+                moduleCode: `HYPO-TEMP` // Temporary code for the module being added
             });
         }
 
+        // Apply the weighted calculation correctly
         const totalWeightedGrade = allModules.reduce((total, module) =>
-            total + (module.grade * module.ects), 0);
+                isGrundModule(module.moduleCode)
+                    ? total + (module.grade * (module.ects / 2))
+                    : total + (module.grade * module.ects),
+            0
+        );
+
         const totalCredits = allModules.reduce((total, module) =>
             total + module.ects, 0);
 
@@ -166,10 +193,6 @@ const CalculatorView = () => {
 
     const handleDeleteHypotheticalModule = (id) => {
         setHypotheticalModules(hypotheticalModules.filter(module => module.id !== id));
-    };
-
-    const handleSemesterChange = (e) => {
-        setCurrentSemester(e.target.value);
     };
 
     // Get friendly label for sort option
