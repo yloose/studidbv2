@@ -2,22 +2,7 @@ import React, {useEffect, useState} from 'react';
 import { ArrowUpDown } from 'lucide-react';
 import { Layout, NeuCard } from '../components/Layout';
 import useAuth from "../../hooks/AuthProvider";
-
-// Lookup data structure for calculation weighted avg
-const GRUND_MODULES = new Set([
-    "Inf-CompSys",
-    "Inf-Math-A",
-    "Inf-Math-B",
-    "infCN-01a",
-    "infEAlg-01a",
-    "infEInf-01a",
-    "infProgOO-01a",
-    "infEWInf-01a"
-]);
-
-function isGrundModule(moduleCode) {
-    return GRUND_MODULES.has(moduleCode);
-}
+import { calculateWeightedAverage, calculateSimpleAverage, calculateTotalECTS } from '../../utils/gradeCalculator';
 
 const getCurrentSemester = () => {
     const today = new Date();
@@ -87,71 +72,27 @@ const CalculatorView = () => {
         setCurrentSemester(currentSystemSemester);
     }, []); // Add empty dependency array to run only once on mount
 
-    // Calculate simple average
-    const calculateSimpleAverage = () => {
-        if (filteredModules.length === 0) return 0;
-        const sum = filteredModules.reduce((total, module) => total + parseFloat(module.grade), 0);
-        return (sum / filteredModules.length).toFixed(2);
-    };
-
-
-    // Calculate weighted average
-    const calculateWeightedAverage = () => {
-        if (filteredModules.length === 0) return 0;
-        const totalWeightedGrade = filteredModules.reduce((total, module) => isGrundModule(module.moduleCode)
-            ? total + (parseFloat(module.grade) * (parseInt(module.ects)) / 2)
-            : total + (parseFloat(module.grade) * parseInt(module.ects)), 0);
-        const totalCredits = filteredModules.reduce((total, module) =>
-            total + parseFloat(module.ects), 0);
-        return (totalWeightedGrade / totalCredits).toFixed(2);
-    };
-
-    // Calculate total ECTS
-    const calculateTotalECTS = () => {
-        if (filteredModules.length === 0) return 0;
-        return filteredModules.reduce((total, module) => total + parseFloat(module.ects), 0);
-    };
-
     // Calculate hypothetical average with all hypothetical modules
     const calculateHypotheticalAverage = () => {
         if ((!newModule.grade || !newModule.ects) && hypotheticalModules.length === 0)
-            return calculateWeightedAverage();
+            return calculateWeightedAverage(filteredModules);
 
         // Combine actual modules with hypothetical ones
         const allModules = [
-            ...filteredModules.map(module => ({
-                grade: parseFloat(module.grade),
-                ects: parseFloat(module.ects),
-                moduleCode: module.moduleCode // Keep moduleCode for grund module check
-            })),
-            ...hypotheticalModules.map(module => ({
-                grade: parseFloat(module.grade),
-                ects: parseFloat(module.ects),
-                moduleCode: module.moduleCode // Keep moduleCode for grund module check
-            }))
+            ...filteredModules,
+            ...hypotheticalModules
         ];
 
         // Add the new module if it has values
         if (newModule.grade && newModule.ects) {
             allModules.push({
-                grade: parseFloat(newModule.grade),
-                ects: parseFloat(newModule.ects),
+                grade: newModule.grade,
+                ects: newModule.ects,
                 moduleCode: `HYPO-TEMP` // Temporary code for the module being added
             });
         }
 
-        // Apply the weighted calculation correctly
-        const totalWeightedGrade = allModules.reduce((total, module) =>
-                isGrundModule(module.moduleCode)
-                    ? total + (module.grade * (module.ects / 2))
-                    : total + (module.grade * module.ects),
-            0
-        );
-
-        const totalCredits = allModules.reduce((total, module) =>
-            total + module.ects, 0);
-
-        return (totalWeightedGrade / totalCredits).toFixed(2);
+        return calculateWeightedAverage(allModules);
     };
 
     const handleInputChange = (e) => {
@@ -274,17 +215,15 @@ const CalculatorView = () => {
                             <div className="grid grid-cols-1 gap-4 mb-6">
                                 <NeuCard>
                                     <h2 className="text-sm uppercase tracking-wider text-gray-600 mb-2">Einfacher Durchschnitt</h2>
-                                    <p className="text-3xl font-medium text-blue-600">{calculateSimpleAverage()}</p>
+                                    <p className="text-3xl font-medium text-blue-600">{calculateSimpleAverage(data.examResults)}</p>
                                 </NeuCard>
-
                                 <NeuCard>
                                     <h2 className="text-sm uppercase tracking-wider text-gray-600 mb-2">Gewichteter Durchschnitt</h2>
-                                    <p className="text-3xl font-medium text-blue-600">{calculateWeightedAverage()}</p>
+                                    <p className="text-3xl font-medium text-blue-600">{calculateWeightedAverage(data.examResults)}</p>
                                 </NeuCard>
-
                                 <NeuCard>
                                     <h2 className="text-sm uppercase tracking-wider text-gray-600 mb-2">ECTS</h2>
-                                    <p className="text-3xl font-medium text-blue-600">{calculateTotalECTS()}</p>
+                                    <p className="text-3xl font-medium text-blue-600">{calculateTotalECTS(data.examResults)}</p>
                                 </NeuCard>
                             </div>
 
@@ -381,7 +320,7 @@ const CalculatorView = () => {
                                         <div className="flex items-center">
                                             <div className="text-3xl font-medium text-blue-600 mr-3">{calculateHypotheticalAverage()}</div>
                                             <div className="text-sm text-gray-500">
-                                                Current: {calculateWeightedAverage()}
+                                                Current: {calculateWeightedAverage(data.examResults)}
                                             </div>
                                         </div>
                                     </div>

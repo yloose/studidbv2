@@ -19,6 +19,7 @@ import {
 } from 'recharts';
 import { ChevronDown, ChevronUp, ArrowUpDown } from 'lucide-react';
 import {Link} from "react-router-dom";
+import { calculateWeightedAverage } from '../../utils/gradeCalculator';
 
 // Colors for different segments - blue fade
 const COLORS = [
@@ -46,8 +47,6 @@ const modules = [
     { name: "Big Data", category: "Data Science", ects: 2 },
     { name: "Statistische Methoden", category: "Data Science", ects: 3 },
 ];
-
-
 
 const categoryMap = {};
 
@@ -151,8 +150,6 @@ const DashboardView = () => {
     Object.keys(gradesData).forEach((key, index) => gradesData[key] = gradesData[key].reduce((acc, x) => acc + 1, 0));
     const gradesDataObj = Object.entries(gradesData).map((arr) => ({grade: arr[0], count: arr[1]})).sort((a, b) => parseFloat(b.grade) - parseFloat(a.grade));
 
-    console.log(gradesDataObj)
-
     return (
         <Layout>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -172,7 +169,7 @@ const DashboardView = () => {
                             <div className="p-4 bg-blue-50 rounded-xl shadow-[inset_3px_3px_6px_#d1d1d1,_inset_-3px_-3px_6px_#ffffff]">
                                 <div className="text-center">
                                     <p className="text-gray-500">Schnitt</p>
-                                    <p className="text-3xl font-bold text-blue-600">{((data?.examResults?.filter(x => x.grade != "5.0").reduce((sum, curr) => sum + parseFloat(curr.grade), 0)) / data?.examResults?.filter(x => x.grade != "5.0").length).toFixed(2)}</p>
+                                    <p className="text-3xl font-bold text-blue-600">{calculateWeightedAverage(data.examResults)}</p>
                                 </div>
                             </div>
 
