@@ -37,8 +37,8 @@ const LoginView = () => {
         <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
             <div className="w-full max-w-md bg-white rounded-xl p-8 shadow-[8px_8px_16px_#d1d1d1,_-8px_-8px_16px_#ffffff]">
                 <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-blue-600">UniStats</h1>
-                    <p className="text-gray-500 mt-2">Student Portal Login</p>
+                    <h1 className="text-3xl font-bold text-blue-600">StudiDBV2</h1>
+                    <p className="text-gray-500 mt-2">Studierendendatenbank</p>
                 </div>
 
                 {error && (
