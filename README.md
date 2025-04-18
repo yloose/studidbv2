@@ -1,6 +1,6 @@
 # StudiDB V2
 
-![CI/CD Status](https://github.com/yloose/studidbv2/actions/workflows/main.yml/badge.svg)
+![CI/CD Status](https://github.com/yloose/studidbv2/actions/workflows/deploy.yml/badge.svg)
 ![Code Coverage](https://img.shields.io/codecov/c/github/yloose/studidbv2)
 ![License](https://img.shields.io/github/license/yloose/studidbv2)
 ![Latest Release](https://img.shields.io/github/v/release/yloose/studidbv2)
