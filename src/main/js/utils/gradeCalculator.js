@@ -26,7 +26,29 @@ export function removeWorstECTS(modules, semester) {
         .map(module => ({...module}));
 
     // Sort modules by grade (worst to best)
-    passingModules.sort((a, b) => parseFloat(b.grade) - parseFloat(a.grade));
+    // If grades are equal, sort by ECTS (higher ECTS first)
+    passingModules.sort(function(a, b) {
+        const gradeA = parseFloat(a.grade);
+        const gradeB = parseFloat(b.grade);
+
+        if (gradeB > gradeA) {
+            return 1;
+        } else if (gradeB < gradeA) {
+            return -1;
+        } else {
+            // grades are equal, sort by ECTS (higher ECTS first)
+            const ectsA = parseFloat(a.ects);
+            const ectsB = parseFloat(b.ects);
+
+            if (ectsA > ectsB) {
+                return -1;
+            } else if (ectsA < ectsB) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+    });
 
     // FPO says 18 ECTS are removed
     let remainingECTSToRemove = 18;
@@ -48,6 +70,7 @@ export function removeWorstECTS(modules, semester) {
             i++;
         }
     }
+    console.log(passingModules);
     return passingModules;
 }
 
