@@ -47,7 +47,6 @@ const getUpcomingSemesters = (count = 5) => {
 };
 
 const CalculatorView = () => {
-
     // State for semester options
     const [semesterOptions, setSemesterOptions] = useState([]);
     const currentSystemSemester = getCurrentSemester();
@@ -208,27 +207,27 @@ const CalculatorView = () => {
         <Layout>
             <div className="bg-gray-100 p-8">
                 <div className="max-w-7xl mx-auto">
-                    <div className="flex flex-col md:flex-row gap-6">
-                        {/* Left Column - Averages and Custom Modules */}
-                        <div className="md:w-1/3">
-                            {/* Three Average Cards */}
-                            <div className="grid grid-cols-1 gap-4 mb-6">
-                                <NeuCard>
-                                    <h2 className="text-sm uppercase tracking-wider text-gray-600 mb-2">Einfacher Durchschnitt</h2>
-                                    <p className="text-3xl font-medium text-blue-600">{calculateSimpleAverage(data.examResults)}</p>
-                                </NeuCard>
-                                <NeuCard>
-                                    <h2 className="text-sm uppercase tracking-wider text-gray-600 mb-2">Gewichteter Durchschnitt</h2>
-                                    <p className="text-3xl font-medium text-blue-600">{calculateWeightedAverage(data.examResults)}</p>
-                                </NeuCard>
-                                <NeuCard>
-                                    <h2 className="text-sm uppercase tracking-wider text-gray-600 mb-2">ECTS</h2>
-                                    <p className="text-3xl font-medium text-blue-600">{calculateTotalECTS(data.examResults)}</p>
-                                </NeuCard>
-                            </div>
+                    {/* Top row - Three averages cards */}
+                    <div className="grid grid-cols-3 gap-4 mb-6">
+                        <NeuCard>
+                            <h2 className="text-sm uppercase tracking-wider text-gray-600 mb-2">Einfacher Durchschnitt</h2>
+                            <p className="text-3xl font-medium text-blue-600">{calculateSimpleAverage(data.examResults)}</p>
+                        </NeuCard>
+                        <NeuCard>
+                            <h2 className="text-sm uppercase tracking-wider text-gray-600 mb-2">Gewichteter Durchschnitt</h2>
+                            <p className="text-3xl font-medium text-blue-600">{calculateWeightedAverage(data.examResults)}</p>
+                        </NeuCard>
+                        <NeuCard>
+                            <h2 className="text-sm uppercase tracking-wider text-gray-600 mb-2">ECTS</h2>
+                            <p className="text-3xl font-medium text-blue-600">{calculateTotalECTS(data.examResults)}</p>
+                        </NeuCard>
+                    </div>
 
-                            {/* Custom Module Input Section */}
-                            <NeuCard>
+                    {/* Main content area */}
+                    <div className="flex flex-row gap-6">
+                        {/* Left Column - New Module */}
+                        <div className="w-1/3">
+                            <NeuCard className="h-full">
                                 <h3 className="text-xl font-semibold text-gray-700 mb-4">Modul hinzufügen</h3>
 
                                 {/* Add New Module Form */}
@@ -329,10 +328,10 @@ const CalculatorView = () => {
                         </div>
 
                         {/* Right Column - All Modules */}
-                        <div className="md:w-2/3">
+                        <div className="w-2/3">
                             <NeuCard className="h-full">
                                 <div className="flex justify-between items-center mb-4">
-                                    <h3 className="text-xl font-semibold text-gray-700">Deine Module</h3>
+                                    <h3 className="text-xl font-semibold text-gray-700">Liste aller Module</h3>
 
                                     {/* Sort dropdown */}
                                     <div className="relative">
@@ -396,7 +395,10 @@ const CalculatorView = () => {
                                     </div>
                                 </div>
 
-                                <div className="overflow-hidden">
+                                <div
+                                    className="overflow-y-auto max-h-[500px] hover:overflow-y-scroll transition-all duration-300 pr-2"
+                                    style={{ height: 'calc(100% - 48px)' }}
+                                >
                                     {!data || !data.examResults || filteredModules.length === 0 ? (
                                         <p className="text-center py-8 text-gray-500">No passing modules found. Modules with grade 5.0 are excluded.</p>
                                     ) : (
