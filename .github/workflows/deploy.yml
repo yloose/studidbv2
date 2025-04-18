@@ -30,7 +30,7 @@ jobs:
       - name: Get SSGH Key and set permissions
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519 && chmod 600 ~/ssh/id_ed25519
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519 && chmod 600 ~/.ssh/id_ed25519
 
       - name: Deploy using SCP
         run: scp -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -r ./build/libs/* root@${{ secrets.SSH_HOST }}:/home/studidbv2/
