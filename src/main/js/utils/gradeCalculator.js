@@ -14,20 +14,58 @@ export function isGrundModule(moduleCode) {
     return GRUND_MODULES.has(moduleCode);
 }
 
+export function removeWorstECTS(modules, semester) {
+    // Return original modules if semester > 6
+    if (parseInt(semester) > 6) {
+        return [...modules];
+    }
+
+    // Filter out failed modules (grade 5.0) and create a copy
+    const passingModules = modules
+        .filter(module => parseFloat(module.grade) !== 5.0)
+        .map(module => ({...module}));
+
+    // Sort modules by grade (worst to best)
+    passingModules.sort((a, b) => parseFloat(b.grade) - parseFloat(a.grade));
+
+    // FPO says 18 ECTS are removed
+    let remainingECTSToRemove = 18;
+    let i = 0;
+
+    while (remainingECTSToRemove > 0 && i < passingModules.length) {
+        const module = passingModules[i];
+        const moduleECTS = parseFloat(module.ects);
+
+        // We can remove ECTS
+        if (remainingECTSToRemove >= moduleECTS) {
+            // Remove this module entirely
+            passingModules.splice(i, 1);
+            remainingECTSToRemove -= moduleECTS;
+        } else {
+            // Partially remove this module's ECTS
+            module.ects = (moduleECTS - remainingECTSToRemove).toString();
+            remainingECTSToRemove = 0;
+            i++;
+        }
+    }
+    return passingModules;
+}
+
 // Calculate weighted average
-export function calculateWeightedAverage(modules) {
+export function calculateWeightedAverage(modules, semester = null) {
     if (!modules || modules.length === 0) return 0;
 
     const filteredModules = modules.filter(module => parseFloat(module.grade) !== 5.0);
+    const removedModules = removeWorstECTS(filteredModules, semester);
 
-    if (filteredModules.length === 0) return 0;
+    if (removedModules.length === 0) return 0;
 
-    const totalWeightedGrade = filteredModules.reduce((total, module) =>
+    const totalWeightedGrade = removedModules.reduce((total, module) =>
         isGrundModule(module.moduleCode)
             ? total + (parseFloat(module.grade) * (parseInt(module.ects)) / 2)
             : total + (parseFloat(module.grade) * parseInt(module.ects)), 0);
 
-    const totalCredits = filteredModules.reduce((total, module) =>
+    const totalCredits = removedModules.reduce((total, module) =>
         total + parseFloat(module.ects), 0);
 
     return (totalWeightedGrade / totalCredits).toFixed(2);
