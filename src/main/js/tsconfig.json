@@ -12,6 +12,7 @@
       "dom",
       "es5",
       "scripthost",
+      "ESNext"
     ]
   }
 }

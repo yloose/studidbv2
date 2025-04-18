@@ -1,12 +1,47 @@
+/* File: src/main/js/app.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
-@layer utilities {
+body {
+    margin: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: #f5f5f5;
 }
 
-/* Fix markerjs2 being displayed behind muis dialogs */
-.__markerjs2_ {
-    z-index: 10000 !important;
+/* Custom classes for neumorphic design */
+.neu-shadow {
+    box-shadow: 5px 5px 10px #d1d1d1, -5px -5px 10px #ffffff;
+}
+
+.neu-shadow-inset {
+    box-shadow: inset 3px 3px 6px #d1d1d1, inset -3px -3px 6px #ffffff;
+}
+
+.neu-shadow-pressed {
+    box-shadow: inset 2px 2px 5px #d1d1d1, inset -2px -2px 5px #ffffff;
+}
+
+/* Animation for the loading spinner */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+
+
+@keyframes slide-in {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+}
+.animate-slide-in {
+animation: slide-in 0.3s ease-out;
 }
