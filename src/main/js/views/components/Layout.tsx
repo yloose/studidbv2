@@ -36,7 +36,7 @@ export const Layout = ({ children }) => {
     const location = useLocation();
     const { logout } = useAuth();
     const navigate = useNavigate();
-    const hoverTimerRef = useRef<NodeJS.Timeout | null>(null);
+    const hoverTimerRef = useRef<number | null>(null);
 
     const getActiveSection = () => {
         const path = location.pathname;
