@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import { ArrowUpDown } from 'lucide-react';
+import { ArrowUpDown, HelpCircle } from 'lucide-react';
 import { Layout, NeuCard } from '../components/Layout';
 import useAuth from "../../hooks/AuthProvider";
 import { calculateWeightedAverage, calculateSimpleAverage, calculateTotalECTS } from '../../utils/gradeCalculator';
@@ -50,6 +50,8 @@ const CalculatorView = () => {
     // State for semester options
     const [semesterOptions, setSemesterOptions] = useState([]);
     const currentSystemSemester = getCurrentSemester();
+    // Tooltip state
+    const [showTooltip, setShowTooltip] = useState(false);
 
     const { data, loading } = useAuth();
     const [hypotheticalModules, setHypotheticalModules] = useState([]);
@@ -297,33 +299,35 @@ const CalculatorView = () => {
                                     >
                                         Add Module
                                     </button>
-
-                                    <div className="flex items-center">
-                                        <input
-                                            type="checkbox"
-                                            id="showHypothetical"
-                                            checked={showHypothetical}
-                                            onChange={() => setShowHypothetical(!showHypothetical)}
-                                            className="mr-2"
-                                        />
-                                        <label htmlFor="showHypothetical" className="text-gray-600 text-sm">
-                                            Show hypothetical
-                                        </label>
-                                    </div>
                                 </div>
 
                                 {/* Hypothetical Grade */}
-                                {showHypothetical && (newModule.grade || hypotheticalModules.length > 0) && (
-                                    <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-                                        <h2 className="text-sm font-medium text-gray-600 mb-2">Hypothetical Average</h2>
-                                        <div className="flex items-center">
-                                            <div className="text-3xl font-medium text-blue-600 mr-3">{calculateHypotheticalAverage()}</div>
-                                            <div className="text-sm text-gray-500">
-                                                Current: {calculateWeightedAverage(data.examResults)}
-                                            </div>
+                                <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+                                    <div className="flex items-center mb-2">
+                                        <h2 className="text-sm font-medium text-gray-600">Theoretischer Durchschnitt</h2>
+                                        <div
+                                            className="relative ml-2 inline-block"
+                                            onMouseEnter={() => setShowTooltip(true)}
+                                            onMouseLeave={() => setShowTooltip(false)}
+                                        >
+                                            <HelpCircle size={16} className="text-gray-400 cursor-help" />
+
+                                            {showTooltip && (
+                                                <div className="absolute z-10 w-64 p-2 -mt-1 text-sm text-white bg-gray-800 rounded-md shadow-lg transform -translate-x-1/2 -translate-y-full left-1/2">
+                                                    Beschreibt den Durchschnitt, nachdem ein hypothetisches Modul hinzugefügt wurde
+                                                    <div className="absolute w-2 h-2 bg-gray-800 transform rotate-45 left-1/2 -ml-1 top-full -mt-1"></div>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
-                                )}
+
+                                    <div className="flex items-center">
+                                        <div className="text-3xl font-medium text-blue-600 mr-3">{calculateHypotheticalAverage()}</div>
+                                        <div className="text-sm text-gray-500">
+                                            Current: {calculateWeightedAverage(data.examResults)}
+                                        </div>
+                                    </div>
+                                </div>
                             </NeuCard>
                         </div>
 
