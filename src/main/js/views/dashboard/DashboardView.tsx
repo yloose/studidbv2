@@ -20,6 +20,7 @@ import {
 import { ChevronDown, ChevronUp, ArrowUpDown } from 'lucide-react';
 import {Link} from "react-router-dom";
 import { calculateWeightedAverage } from '../../utils/gradeCalculator';
+import { getModulesByCategory, getCategoryForModule } from '../../utils/moduleMapping';
 
 // Colors for different segments - blue fade
 const COLORS = [
@@ -36,32 +37,6 @@ const COLORS = [
     '#F5F9FF'  // 5.0 (lightest blue - worst grade)
 ];
 
-
-const modules = [
-    { name: "Berechnung und Logik", category: "Theoretische Informatik", ects: 4 },
-    { name: "Analyse von Algotihmen und Komplexität", category: "Theoretische Informatik", ects: 4 },
-    { name: "Compilerbau", category: "Theoretische Informatik", ects: 5 },
-    { name: "Softwarearchitektur", category: "Software Engineering", ects: 3 },
-    { name: "Data Science", category: "Data Science", ects: 4 },
-    { name: "Deep Learning", category: "Machine Learning", ects: 5 },
-    { name: "Big Data", category: "Data Science", ects: 2 },
-    { name: "Statistische Methoden", category: "Data Science", ects: 3 },
-];
-
-const categoryMap = {};
-
-modules.forEach(mod => {
-    if (!categoryMap[mod.category]) {
-        categoryMap[mod.category] = 0;
-    }
-    categoryMap[mod.category] += mod.ects;
-});
-
-const radarData = Object.entries(categoryMap).map(([category, totalECTS]) => ({
-    category,
-    ects: totalECTS,
-}));
-
 // Sort options for the grades overview tew
 const SORT_OPTIONS = {
     BEST: "best",
@@ -75,6 +50,21 @@ const DashboardView = () => {
     const { data } = useAuth();
     const [sortBy, setSortBy] = useState(SORT_OPTIONS.BEST);
     const [showSortOptions, setShowSortOptions] = useState(false);
+
+    // Create CategoryMap for hexagon chart
+    const categoryMap = {};
+
+    data.examResults.forEach(mod => {
+        if (!categoryMap[getCategoryForModule(mod.moduleCode)]) {
+            categoryMap[getCategoryForModule(mod.moduleCode)] = 0;
+        }
+        categoryMap[getCategoryForModule(mod.moduleCode)] += parseInt(mod.ects);
+    });
+
+    const pieData = Object.entries(categoryMap).map(([category, totalECTS]) => ({
+        name: category,
+        value: totalECTS,
+    }));
 
     // Sort grades based on selected option
     const getSortedGrades = () => {
@@ -321,14 +311,23 @@ const DashboardView = () => {
                 <NeuCard>
                     <h3 className="text-xl font-semibold text-gray-700 mb-4">Modulverteilung</h3>
                     <ResponsiveContainer width="100%" height={220}>
-                        <RadarChart data={radarData}>
-                            <PolarGrid />
-                            <PolarAngleAxis dataKey="category" />
-                            <PolarRadiusAxis angle={30} domain={[0, 'auto']} />
-                            <Radar name="ECTS" dataKey="ects" stroke="#3f45aa" fill="#4361ee" fillOpacity={0.6} />
-                            <Legend />
-                            <Tooltip />
-                        </RadarChart>
+                        <PieChart>
+                            <Pie
+                                data={pieData}
+                                cx="50%"
+                                cy="50%"
+                                labelLine={true}
+                                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                                outerRadius={80}
+                                fill="#8884d8"
+                                dataKey="value"
+                            >
+                                {pieData.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                ))}
+                            </Pie>
+                            <Tooltip formatter={(value) => [`${value} ECTS`, 'ECTS']} />
+                        </PieChart>
                     </ResponsiveContainer>
                 </NeuCard>
             </div>
