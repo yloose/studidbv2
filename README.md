@@ -2,7 +2,7 @@
 
 ![CI/CD Status](https://github.com/yloose/studidbv2/actions/workflows/deploy.yml/badge.svg)
 ![Code Coverage](https://img.shields.io/codecov/c/github/yloose/studidbv2)
-![License](https://img.shields.io/github/license/yloose/studidbv2)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![Latest Release](https://img.shields.io/github/v/release/yloose/studidbv2)
 
 StudiDB V2 ist eine Verbesserung der StudiDB der CAU Kiel. Sie steht in keiner Verbindung mit Universität und ist nur ein privates Projekt,
