@@ -1,5 +1,4 @@
-// File: src/main/js/views/login/LoginView.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/AuthProvider';
 
@@ -8,11 +7,11 @@ const LoginView = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const { login, isAuthenticated } = useAuth();
+    const { login, isAuthenticated, loading } = useAuth();
     const navigate = useNavigate();
 
     // Redirect if already authenticated
-    React.useEffect(() => {
+    useEffect(() => {
         if (isAuthenticated) {
             navigate('/');
         }
@@ -26,9 +25,11 @@ const LoginView = () => {
         try {
             await login(username, password);
             navigate("/");
-        } catch (err) {
-            setError(err.message);
+        } catch (err: any) {
+            // Set error message from the caught error
+            setError(err?.message || 'Login failed. Please try again.');
         } finally {
+            // Always set loading to false, regardless of outcome
             setIsLoading(false);
         }
     };
@@ -42,8 +43,11 @@ const LoginView = () => {
                 </div>
 
                 {error && (
-                    <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-lg text-center">
-                        {error}
+                    <div className="mb-6 p-4 rounded-lg text-center text-red-600 bg-gray-50 shadow-[inset_3px_3px_6px_#d1d1d1,_inset_-3px_-3px_6px_#ffffff] border-l-4 border-red-500 flex items-center justify-center">
+                        <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zm-1 9a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd"></path>
+                        </svg>
+                        <span className="font-medium">{error}</span>
                     </div>
                 )}
 
@@ -81,14 +85,14 @@ const LoginView = () => {
                     <div>
                         <button
                             type="submit"
-                            disabled={isLoading}
+                            disabled={isLoading || loading}
                             className={`w-full p-3 bg-blue-600 text-white rounded-lg transition-all duration-300 
-                ${isLoading
+                ${(isLoading || loading)
                                 ? 'opacity-70 cursor-not-allowed'
                                 : 'shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff] hover:bg-blue-700 hover:shadow-[2px_2px_5px_#d1d1d1,_-2px_-2px_5px_#ffffff]'
                             }`}
                         >
-                            {isLoading ? 'Logging in...' : 'Login'}
+                            {isLoading || loading ? 'Logging in...' : 'Login'}
                         </button>
                     </div>
                 </form>

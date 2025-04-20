@@ -1,10 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import {Simulate} from "react-dom/test-utils";
 
 interface AuthContextType {
     isAuthenticated: boolean;
     loading: boolean;
-    login: (username: string, password: string ) => Promise<void>;
+    login: (username: string, password: string) => Promise<void>;
     logout: () => void;
     data: any | null;
 }
@@ -22,36 +21,51 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setIsAuthenticated(data != null);
 
         if (data != null) {
-            const parsedData = JSON.parse(data);
-            setData(parsedData);
+            try {
+                const parsedData = JSON.parse(data);
+                setData(parsedData);
+            } catch (error) {
+                // Handle potential JSON parse error
+                localStorage.removeItem('data');a
+                setIsAuthenticated(false);
+            }
         }
         setLoading(false);
-
     }, []);
 
     const login = async (username: string, password: string) => {
         setLoading(true);
-        let header = new Headers();
+        try {
+            let header = new Headers();
+            header.set('Authorization', 'Basic ' + btoa(username + ":" + password));
 
-        header.set('Authorization', 'Basic ' + btoa(username + ":" + password));
-        let res = await fetch("/api/data", {
-            method: "GET",
-            headers: header,
-        })
+            let res = await fetch("/api/data", {
+                method: "GET",
+                headers: header,
+            });
 
-        if (res.ok) {
-            let json = await res.json();
-            localStorage.setItem('data', JSON.stringify(json));
-            setData(json);
-            setIsAuthenticated(true);
-        } else {
-            throw new Error("Invalid Username or password!");
+            if (res.ok) {
+                let json = await res.json();
+                localStorage.setItem('data', JSON.stringify(json));
+                setData(json);
+                setIsAuthenticated(true);
+            } else {
+                // Important: throw a proper error with message
+                throw new Error("Invalid username or password!");
+            }
+        } catch (error) {
+            // Re-throw the error so it can be caught by the component
+            setLoading(false);
+            throw error;
+        } finally {
+            // This ensures loading is set to false even if there's an error
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     const logout = () => {
-        localStorage.removeItem('authToken');
+        localStorage.removeItem('data'); // Fix: should remove 'data' not 'authToken'
+        setData(null);
         setIsAuthenticated(false);
     };
 
