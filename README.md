@@ -10,24 +10,24 @@ um die Daten besser zu visualisieren.
 
 ## 📌 Features
 
-- Feature 1
-- Feature 2
-- Feature 3
+- Berechnung des Notenschnitts
+- Verschiedene Visualisierung von Daten
+- Notenrechner
 
 ## 🛠️ Technologien
 
 - Programmiersprachen: Java, TypeScript 
 - Frameworks: React, Spring
-- Datenbank: 
-- Infrastruktur: Docker
 
 ## 📦 Voraussetzungen
 
-- [Node.js 18+](https://nodejs.org/) / [Python 3.10+](https://www.python.org/) / [JDK 23+](https://adoptium.net/)
-- [Docker](https://www.docker.com/) (optional)
+- [Node.js 18+](https://nodejs.org/) / [JDK 23+](https://adoptium.net/)
 
 ## 🚀 Installation
 
+- Klone das Repository
+- Führe "Studidbv2Application" aus
+- Die Seite läuft über "localhost:8080"
 
 ## 📝 License
 This project is licensed under the MIT License - see the LICENSE file for details.
