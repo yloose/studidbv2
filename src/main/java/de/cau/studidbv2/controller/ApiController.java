@@ -50,7 +50,7 @@ public class ApiController {
             UserSemester userSemester = studidbService.getUserSemester(authorization);
             return new DataResponse(examResults, userInfo, userSemester);
         } catch (LoginException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password");
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error");
         }
