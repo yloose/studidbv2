@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 setData(parsedData);
             } catch (error) {
                 // Handle potential JSON parse error
-                localStorage.removeItem('data');a
+                localStorage.removeItem('data');
                 setIsAuthenticated(false);
             }
         }
