@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 setData(parsedData);
             } catch (error) {
                 // Handle potential JSON parse error
-                localStorage.removeItem('data');a
+                localStorage.removeItem('data');
                 setIsAuthenticated(false);
             }
         }
@@ -44,14 +44,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 headers: header,
             });
 
+            let json = await res.json();
+
             if (res.ok) {
-                let json = await res.json();
                 localStorage.setItem('data', JSON.stringify(json));
                 setData(json);
                 setIsAuthenticated(true);
             } else {
-                // Important: throw a proper error with message
-                throw new Error("Invalid username or password!");
+                throw new Error(json.message);
             }
         } catch (error) {
             // Re-throw the error so it can be caught by the component

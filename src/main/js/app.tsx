@@ -14,24 +14,20 @@ const App = function (props: any) {
     const { isAuthenticated, loading } = useAuth();
     //const navigate = useNavigate();
 
-    if (loading) {
-        return (
-            <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-                <div className="w-12 h-12 rounded-full border-4 border-t-blue-500 border-blue-200 animate-spin"></div>
-            </div>
-        );
-    }
-
-    const login = <Navigate to={"/login"} />;
+    const withAuth = elem => loading ?
+        <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-full border-4 border-t-blue-500 border-blue-200 animate-spin"></div>
+        </div>
+        : isAuthenticated ? elem : <Navigate to={"/login"} />;
 
     return (
         <Routes>
             <Route path="/login" element={<LoginView />} />
-            <Route path="/" element={isAuthenticated ? <DashboardView /> : login} />
-            <Route path="/grades" element={isAuthenticated ? <GradesView /> : login }/>
-            <Route path="/attendance" element={isAuthenticated ? <EnrolledView /> : login} />
-            <Route path="/calculator" element={isAuthenticated ? <CalculatorView /> : login} />
-            <Route path="/profile" element={isAuthenticated ? <ProfileView /> : login} />
+            <Route path="/" element={withAuth(<DashboardView />)} />
+            <Route path="/grades" element={withAuth(<GradesView />)} />
+            <Route path="/attendance" element={withAuth(<EnrolledView />)} />
+            <Route path="/calculator" element={withAuth(<CalculatorView />)} />
+            <Route path="/profile" element={withAuth(<ProfileView />)} />
         </Routes>
     );
 }

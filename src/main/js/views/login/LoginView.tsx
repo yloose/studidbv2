@@ -27,7 +27,7 @@ const LoginView = () => {
             navigate("/");
         } catch (err: any) {
             // Set error message from the caught error
-            setError(err?.message || 'Login failed. Please try again.');
+            setError(err?.message || "Login failed. Please try again.");
         } finally {
             // Always set loading to false, regardless of outcome
             setIsLoading(false);

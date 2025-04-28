@@ -1,5 +1,5 @@
 // File: src/main/js/views/dashboard/DashboardView.tsx
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useMemo} from 'react';
 import { Layout, NeuCard } from '../components/Layout';
 import useAuth, {AuthProvider} from '../../hooks/AuthProvider';
 import {
@@ -21,6 +21,7 @@ import { ChevronDown, ChevronUp, ArrowUpDown } from 'lucide-react';
 import {Link} from "react-router-dom";
 import { calculateWeightedAverage } from '../../utils/gradeCalculator';
 import { getModulesByCategory, getCategoryForModule } from '../../utils/moduleMapping';
+import {sortBySemester} from "../../utils/utils";
 
 // Colors for different segments - blue fade
 const COLORS = [
@@ -123,14 +124,11 @@ const DashboardView = () => {
         }
     };
 
-    // ECTS per semester
-    // Filter out unpassed modules and group by semester
-    const ectsData: Object = Object.groupBy(data.examResults.filter((x) => x.grade != "5.0"), ({semester}) =>
-        semester
-    );
-    // Accumulate the ECTS for each semester and rearrange in list of objects
-    Object.keys(ectsData).forEach(key => ectsData[key] = ectsData[key].reduce((acc, x) => acc + parseInt(x.ects), 0));
-    const ectsDataObj = Object.entries(ectsData).map((arr) => ({semester: arr[0], ects: arr[1]}));
+    const ectsPerSemester = useMemo(() => {
+        let groupedData: Object = Object.groupBy(data.examResults.filter(x => x.grade != "5.0"), ({semester}) => semester);
+        Object.keys(groupedData).forEach(key => groupedData[key] = groupedData[key].reduce((acc, x) => acc + parseInt(x.ects), 0));
+        return sortBySemester(Object.entries(groupedData).map(arr => ({semester: arr[0], ects: arr[1]})), x => x.semester);
+    }, [data.examResults]);
 
     // Notenverteilung
     const gradesData: Object = Object.groupBy(data.examResults, ({grade}) =>
@@ -296,7 +294,7 @@ const DashboardView = () => {
                     <h3 className="text-xl font-semibold text-gray-700 mb-4">ECTS pro Semester</h3>
                     <ResponsiveContainer width="100%" height={220}>
                         <LineChart
-                            data={ectsDataObj}
+                            data={ectsPerSemester}
                             margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
                         >
                             <CartesianGrid strokeDasharray="3 3" vertical={false} />

@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Layout, NeuCard } from '../components/Layout';
 import useAuth from "../../hooks/AuthProvider";
+import {sortBySemester} from "../../utils/utils";
 
 const GradesView = () => {
     const {data} = useAuth();
@@ -15,8 +16,7 @@ const GradesView = () => {
             break;
 
         case "semester":
-            const parseSemester = (s: string) => (s.startsWith("WS") ? 0.5 : 0) + parseInt(s.match(/\d{2}/)[0] || "0");
-            sortedResults.sort((a, b) => sortDirection * (parseSemester(a.semester) - parseSemester(b.semester)));
+            sortBySemester(sortedResults, x => x.semester, sortConfig.direction);
             break;
 
         case "ects":

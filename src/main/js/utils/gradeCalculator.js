@@ -70,7 +70,7 @@ export function removeWorstECTS(modules, semester) {
             i++;
         }
     }
-    console.log(passingModules);
+
     return passingModules;
 }
 
