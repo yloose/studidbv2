@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 interface AuthContextType {
     isAuthenticated: boolean;
     loading: boolean;
-    login: (username: string, password: string) => Promise<void>;
+    login: (username: string, password: string, vpnName: string, vpnPassword: string) => Promise<void>;
     logout: () => void;
     data: any | null;
 }
