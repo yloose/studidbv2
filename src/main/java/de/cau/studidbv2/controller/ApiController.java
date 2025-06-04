@@ -1,12 +1,10 @@
 package de.cau.studidbv2.controller;
 
 import de.cau.studidbv2.dto.DataResponse;
-import de.cau.studidbv2.dto.ExamResult;
-import de.cau.studidbv2.dto.StudidbUserInfo;
-import de.cau.studidbv2.dto.UserSemester;
 import de.cau.studidbv2.service.LoginException;
-import de.cau.studidbv2.service.StudidbAuthorization;
 import de.cau.studidbv2.service.StudidbService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -22,6 +20,7 @@ import java.util.List;
 public class ApiController {
 
     private final StudidbService studidbService;
+    private final Logger LOG = LoggerFactory.getLogger(StudidbService.class);
 
     public ApiController(StudidbService studidbService) {
         this.studidbService = studidbService;
@@ -40,15 +39,16 @@ public class ApiController {
     }
 
     @GetMapping("/data")
-    public DataResponse getData(@RequestHeader(value = "Authorization") String authHeader) {
+    public DataResponse getData(    @RequestHeader(value = "Authorization") String authHeader,
+                                    @RequestHeader(value = "X-VPN-Name") String vpnName,
+                                    @RequestHeader(value = "X-VPN-Password") String vpnPassword) {
         String[] credentials = getCredentials(authHeader);
 
+        // Decode the VPN password which is Base64 encoded in the frontend
+        String decodedVpnPassword = new String(Base64.getDecoder().decode(vpnPassword));
         try {
-            StudidbAuthorization authorization = studidbService.login(credentials[0], credentials[1]);
-            List<ExamResult> examResults = studidbService.getExamResults(authorization);
-            StudidbUserInfo userInfo = studidbService.getUserInfo(authorization);
-            UserSemester userSemester = studidbService.getUserSemester(authorization);
-            return new DataResponse(examResults, userInfo, userSemester);
+
+            return studidbService.getData(credentials[0], credentials[1], vpnName, decodedVpnPassword);
         } catch (LoginException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password");
         } catch (Exception e) {

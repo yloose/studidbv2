@@ -1,8 +1,6 @@
 package de.cau.studidbv2.service;
 
-import de.cau.studidbv2.dto.ExamResult;
-import de.cau.studidbv2.dto.StudidbUserInfo;
-import de.cau.studidbv2.dto.UserSemester;
+import de.cau.studidbv2.dto.*;
 import de.cau.studidbv2.dto.Module;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -21,11 +19,12 @@ import java.util.stream.IntStream;
 
 @Service
 public class StudidbService {
+    private ScriptRunner scriptRunner;
 
     private final Logger LOG = LoggerFactory.getLogger(StudidbService.class);
     private static final String STUDIDB_BASE_URL = "https://studidb.informatik.uni-kiel.de:8484";
 
-    public StudidbAuthorization login(String username, String password) throws LoginException {
+    public StudidbAuthorization login(String username, String password, String vpnUser, String vpnPassword) throws LoginException {
         Connection.Response res;
         try {
             res = Jsoup.connect(STUDIDB_BASE_URL + "/studierende/login")
@@ -37,7 +36,6 @@ public class StudidbService {
         } catch (Exception e){
             throw new LoginException(e.getMessage());
         }
-
         LOG.info(res.url().toString());
         LOG.info(res.url().getPath());
         if (res.url().getPath().equals("/studierende/login")) {
@@ -182,18 +180,13 @@ public class StudidbService {
         return res.parse();
     }
 
-    public List<ExamResult> getExamResults(StudidbAuthorization authorization) throws Exception {
-        Document doc = getStudidbDocument("/studierende/leistungen", authorization.sessionId(), authorization.jsessionId());
-        return parseExamResults(doc);
-    }
+    public DataResponse getData(String username, String password, String vpnUser, String vpnPassword) throws Exception {
+        List<String> dataFiles = scriptRunner.runScriptAndReadFiles("FILEPATH", username, password);
 
-    public StudidbUserInfo getUserInfo(StudidbAuthorization authorization) throws Exception {
-        Document doc = getStudidbDocument("/studierende/start", authorization.sessionId(), authorization.jsessionId());
-        return parseUserInfo(doc);
-    }
+        List<ExamResult> examResults = parseExamResults(Jsoup.parse(dataFiles.get(2)));
+        StudidbUserInfo userInfo = parseUserInfo(Jsoup.parse(dataFiles.get(0)));
+        UserSemester userSemester = parseUserModule(Jsoup.parse(dataFiles.get(1)));
+        return new DataResponse(examResults, userInfo, userSemester);
 
-    public UserSemester getUserSemester(StudidbAuthorization authorization) throws Exception {
-        Document doc = getStudidbDocument("/studierende/module", authorization.sessionId(), authorization.jsessionId());
-        return parseUserModule(doc);
     }
 }

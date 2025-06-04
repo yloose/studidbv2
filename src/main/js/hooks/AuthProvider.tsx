@@ -33,11 +33,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setLoading(false);
     }, []);
 
-    const login = async (username: string, password: string) => {
+    const login = async (username: string, password: string, vpnName: string, vpnPassword: string) => {
         setLoading(true);
         try {
             let header = new Headers();
             header.set('Authorization', 'Basic ' + btoa(username + ":" + password));
+
+            // Add VPN credentials as custom headers
+            header.set('X-VPN-Name', vpnName);
+            header.set('X-VPN-Password', btoa(vpnPassword));
 
             let res = await fetch("/api/data", {
                 method: "GET",
