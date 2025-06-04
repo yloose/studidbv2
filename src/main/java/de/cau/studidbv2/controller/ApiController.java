@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 
@@ -33,7 +34,7 @@ public class ApiController {
 
         String credentialsString = new String(Base64.getDecoder().decode(authHeader.substring("Basic ".length())));
         String[] credentials = credentialsString.split(":");
-        if (credentials.length != 2)
+        if (credentials.length != 4)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid credentials");
 
         return credentials;
@@ -44,11 +45,7 @@ public class ApiController {
         String[] credentials = getCredentials(authHeader);
 
         try {
-            StudidbAuthorization authorization = studidbService.login(credentials[0], credentials[1]);
-            List<ExamResult> examResults = studidbService.getExamResults(authorization);
-            StudidbUserInfo userInfo = studidbService.getUserInfo(authorization);
-            UserSemester userSemester = studidbService.getUserSemester(authorization);
-            return new DataResponse(examResults, userInfo, userSemester);
+            return studidbService.getStudidbData(credentials[0],credentials[1],credentials[2],credentials[3]);
         } catch (LoginException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password");
         } catch (Exception e) {

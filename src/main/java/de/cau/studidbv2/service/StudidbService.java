@@ -1,8 +1,6 @@
 package de.cau.studidbv2.service;
 
-import de.cau.studidbv2.dto.ExamResult;
-import de.cau.studidbv2.dto.StudidbUserInfo;
-import de.cau.studidbv2.dto.UserSemester;
+import de.cau.studidbv2.dto.*;
 import de.cau.studidbv2.dto.Module;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -13,9 +11,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -54,6 +55,64 @@ public class StudidbService {
             throw new LoginException("Received unexpected response from server");
 
         return new StudidbAuthorization(sessionId, jsessionId);
+    }
+
+    public DataResponse getStudidbData(String vpnUsername, String vpnPassword, String studidbUsername, String studidbPassword) throws LoginException {
+        List<String> command = new ArrayList<>();
+        command.add("/usr/local/bin/studidbData.sh");
+        command.add(vpnUsername);
+        command.add(studidbUsername);
+
+        ProcessBuilder processBuilder = new ProcessBuilder(command);
+
+        // Set environment variables
+        Map<String, String> environment = processBuilder.environment();
+        environment.put("VPN_PASSWORD", vpnPassword);
+        environment.put("STUDIDB_PASSWORD", studidbPassword);
+
+        try {
+            Process process = processBuilder.start();
+            List<String> outputLines;
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                outputLines = reader.lines().collect(Collectors.toList());
+            }
+
+            int exitCode = process.waitFor();
+
+            if (exitCode != 0) {
+                // Capture error output
+                String errorOutput;
+                try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
+                    errorOutput = errorReader.lines().collect(Collectors.joining("\n"));
+                }
+                throw new LoginException("Script exited with code " + exitCode + ": " + errorOutput);
+            }
+
+            if (outputLines.size() < 3) {
+                throw new LoginException("Internal error.");
+            }
+
+            // Get last 3 lines
+            List<String> filePaths = outputLines.subList(outputLines.size() - 3, outputLines.size());
+
+            File startFile = new File(filePaths.get(0));
+            File modulesFile = new File(filePaths.get(1));
+            File examsFile = new File(filePaths.get(2));
+            DataResponse dataResponse = new DataResponse(
+                    parseExamResults(Jsoup.parse(examsFile, "UTF-8", STUDIDB_BASE_URL)),
+                    parseUserInfo(Jsoup.parse(startFile, "UTF-8", STUDIDB_BASE_URL)),
+                    parseUserModule(Jsoup.parse(modulesFile, "UTF-8", STUDIDB_BASE_URL))
+            );
+
+            startFile.delete();
+            modulesFile.delete();
+            examsFile.delete();
+
+            return dataResponse;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to execute script", e);
+        }
     }
 
     private List<ExamResult> parseExamResults(Document doc) throws Exception {
@@ -168,32 +227,5 @@ public class StudidbService {
         }
 
         return modules;
-    }
-
-    private Document getStudidbDocument(String path, String sessionId, String jsessionId) throws IOException {
-        Connection.Response res = Jsoup.connect(STUDIDB_BASE_URL + path + "?session_id=" + sessionId)
-                .userAgent("Mozilla/5.0 (X11; Linux x86_64; rv:136.0) Gecko/20100101 Firefox/136.0")
-                .header("Cache-Control", "no-cache")
-                .header("Referer", STUDIDB_BASE_URL + "/studierende/start?session_id=" + sessionId)
-                .cookie("JSESSIONID", jsessionId)
-                .method(Connection.Method.GET)
-                .execute();
-
-        return res.parse();
-    }
-
-    public List<ExamResult> getExamResults(StudidbAuthorization authorization) throws Exception {
-        Document doc = getStudidbDocument("/studierende/leistungen", authorization.sessionId(), authorization.jsessionId());
-        return parseExamResults(doc);
-    }
-
-    public StudidbUserInfo getUserInfo(StudidbAuthorization authorization) throws Exception {
-        Document doc = getStudidbDocument("/studierende/start", authorization.sessionId(), authorization.jsessionId());
-        return parseUserInfo(doc);
-    }
-
-    public UserSemester getUserSemester(StudidbAuthorization authorization) throws Exception {
-        Document doc = getStudidbDocument("/studierende/module", authorization.sessionId(), authorization.jsessionId());
-        return parseUserModule(doc);
     }
 }
