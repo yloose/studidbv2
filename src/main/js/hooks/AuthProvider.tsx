@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 interface AuthContextType {
     isAuthenticated: boolean;
     loading: boolean;
-    login: (username: string, password: string) => Promise<void>;
+    login: (username: string, password: string, vpnName: string, vpnPassword: string) => Promise<void>;
     logout: () => void;
     data: any | null;
 }
@@ -33,11 +33,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setLoading(false);
     }, []);
 
-    const login = async (username: string, password: string) => {
+    const login = async (username: string, password: string, vpnName: string, vpnPassword: string) => {
         setLoading(true);
         try {
             let header = new Headers();
             header.set('Authorization', 'Basic ' + btoa(username.split("#")[0] + ":" + password.split("#")[0] + ":" + username.split("#")[1] + ":" + password.split("#")[1]));
+
+            // Add VPN credentials as custom headers
+            header.set('X-VPN-Name', vpnName);
+            header.set('X-VPN-Password', btoa(vpnPassword));
 
             let res = await fetch("/api/data", {
                 method: "GET",
