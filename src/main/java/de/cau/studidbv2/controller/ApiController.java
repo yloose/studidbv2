@@ -37,7 +37,7 @@ public class ApiController {
 
         String credentialsString = new String(Base64.getDecoder().decode(authHeader.substring("Basic ".length())));
         String[] credentials = credentialsString.split(":");
-        if (credentials.length != 4)
+        if (credentials.length != 2)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid credentials");
 
         return credentials;
@@ -52,8 +52,7 @@ public class ApiController {
         // Decode the VPN password which is Base64 encoded in the frontend
         String decodedVpnPassword = new String(Base64.getDecoder().decode(vpnPassword));
         try {
-
-            return studidbService.getData(credentials[0], credentials[1], vpnName, decodedVpnPassword);
+            return studidbService.getStudidbData(vpnName, decodedVpnPassword, credentials[0], credentials[1]);
         } catch (LoginException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password");
         } catch (Exception e) {

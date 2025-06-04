@@ -62,8 +62,8 @@ public class StudidbService {
         command.add("/usr/local/bin/studidbData.sh");
         command.add(vpnUsername);
         command.add(studidbUsername);
-
-        ProcessBuilder processBuilder = new ProcessBuilder(command);
+		
+	    ProcessBuilder processBuilder = new ProcessBuilder(command);
 
         // Set environment variables
         Map<String, String> environment = processBuilder.environment();

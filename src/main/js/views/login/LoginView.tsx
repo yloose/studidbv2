@@ -30,21 +30,7 @@ const LoginView = () => {
     const handleVpnSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
-        setIsLoading(true);
-
-        try {
-            // Handle vpn login with java backend
-
-            // Simulate vpn login
-            setTimeout(() => {
-                setIsLoading(false);
-                // Move to step 2 (student credentials)
-                setStep(2);
-            }, 1000);
-        } catch (err: any) {
-            setError(err?.message || "VPN authentication failed. Please try again.");
-            setIsLoading(false);
-        }
+        setStep(2);
     };
 
     // Handle final login submission (student credentials)

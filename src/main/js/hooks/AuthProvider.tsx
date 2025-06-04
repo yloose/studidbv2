@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setLoading(true);
         try {
             let header = new Headers();
-            header.set('Authorization', 'Basic ' + btoa(username.split("#")[0] + ":" + password.split("#")[0] + ":" + username.split("#")[1] + ":" + password.split("#")[1]));
+            header.set('Authorization', 'Basic ' + btoa(username + ":" + password));
 
             // Add VPN credentials as custom headers
             header.set('X-VPN-Name', vpnName);
