@@ -60,7 +60,7 @@ const LoginView = () => {
         <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
             <div className="w-full max-w-md bg-white rounded-xl p-8 shadow-[8px_8px_16px_#d1d1d1,_-8px_-8px_16px_#ffffff]">
                 <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-blue-600">StudiDBV2</h1>
+                    <h1 className="text-3xl font-bold text-blue-600">StudiDBv2</h1>
                     <p className="text-gray-500 mt-2">Studierendendatenbank</p>
                 </div>
 
@@ -135,14 +135,6 @@ const LoginView = () => {
                 {step === 2 && (
                     <>
                         <h2 className="text-xl font-semibold text-gray-700 mb-4 text-center">Student Login</h2>
-                        <div className="mb-4 p-3 rounded-lg bg-green-50 border-l-4 border-green-500 text-green-700">
-                            <p className="text-sm flex items-center">
-                                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path>
-                                </svg>
-                                VPN Connected: <span className="font-medium ml-1">{vpnName}</span>
-                            </p>
-                        </div>
                         <form onSubmit={handleStudentSubmit} className="space-y-6">
                             <div>
                                 <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">

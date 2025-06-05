@@ -1,11 +1,7 @@
 package de.cau.studidbv2.controller;
 
 import de.cau.studidbv2.dto.DataResponse;
-import de.cau.studidbv2.dto.ExamResult;
-import de.cau.studidbv2.dto.StudidbUserInfo;
-import de.cau.studidbv2.dto.UserSemester;
 import de.cau.studidbv2.service.LoginException;
-import de.cau.studidbv2.service.StudidbAuthorization;
 import de.cau.studidbv2.service.StudidbService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,16 +12,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Arrays;
 import java.util.Base64;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api")
 public class ApiController {
 
     private final StudidbService studidbService;
-    private final Logger LOG = LoggerFactory.getLogger(StudidbService.class);
+    private final Logger LOG = LoggerFactory.getLogger(ApiController.class);
 
     public ApiController(StudidbService studidbService) {
         this.studidbService = studidbService;
@@ -36,7 +30,7 @@ public class ApiController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid credentials");
 
         String credentialsString = new String(Base64.getDecoder().decode(authHeader.substring("Basic ".length())));
-        String[] credentials = credentialsString.split(":");
+        String[] credentials = credentialsString.split(":", 2);
         if (credentials.length != 2)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid credentials");
 
@@ -54,6 +48,7 @@ public class ApiController {
         try {
             return studidbService.getStudidbData(vpnName, decodedVpnPassword, credentials[0], credentials[1]);
         } catch (LoginException e) {
+            LOG.error("Login failure", e);
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password");
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error");

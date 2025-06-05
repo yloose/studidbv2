@@ -2,8 +2,6 @@ package de.cau.studidbv2.service;
 
 import de.cau.studidbv2.dto.*;
 import de.cau.studidbv2.dto.Module;
-import org.jsoup.Connection;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -11,12 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -24,94 +18,22 @@ import java.util.stream.IntStream;
 public class StudidbService {
 
     private final Logger LOG = LoggerFactory.getLogger(StudidbService.class);
-    private static final String STUDIDB_BASE_URL = "https://studidb.informatik.uni-kiel.de:8484";
+    private final StudidbDataFetcher studidbDataFetcher;
 
-    public StudidbAuthorization login(String username, String password) throws LoginException {
-        Connection.Response res;
-        try {
-            res = Jsoup.connect(STUDIDB_BASE_URL + "/studierende/login")
-                    .userAgent("Mozilla/5.0 (X11; Linux x86_64; rv:136.0) Gecko/20100101 Firefox/136.0")
-                    .header("Cache-Control", "no-cache")
-                    .data("username", username, "password", password, "login", "Login")
-                    .method(Connection.Method.POST)
-                    .execute();
-        } catch (Exception e){
-            throw new LoginException(e.getMessage());
-        }
-
-        LOG.info(res.url().toString());
-        LOG.info(res.url().getPath());
-        if (res.url().getPath().equals("/studierende/login")) {
-            throw new LoginException("Wrong credentials.");
-        }
-
-        if (res.url().toString().split("=").length < 2)
-            throw new LoginException("Received unexpected response from server");
-
-        String sessionId = res.url().toString().split("=")[1];
-        String jsessionId = res.cookies().get("JSESSIONID");
-
-        if (jsessionId == null)
-            throw new LoginException("Received unexpected response from server");
-
-        return new StudidbAuthorization(sessionId, jsessionId);
+    public StudidbService(StudidbDataFetcher studidbDataFetcher) {
+        this.studidbDataFetcher = studidbDataFetcher;
     }
 
     public DataResponse getStudidbData(String vpnUsername, String vpnPassword, String studidbUsername, String studidbPassword) throws LoginException {
-        List<String> command = new ArrayList<>();
-        command.add("/usr/local/bin/studidbData.sh");
-        command.add(vpnUsername);
-        command.add(studidbUsername);
-		
-	    ProcessBuilder processBuilder = new ProcessBuilder(command);
-
-        // Set environment variables
-        Map<String, String> environment = processBuilder.environment();
-        environment.put("VPN_PASSWORD", vpnPassword);
-        environment.put("STUDIDB_PASSWORD", studidbPassword);
-
+        StudidbDataFetcher.StudidbDocuments documents = studidbDataFetcher.fetchDocuments(vpnUsername, vpnPassword, studidbUsername, studidbPassword);
         try {
-            Process process = processBuilder.start();
-            List<String> outputLines;
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                outputLines = reader.lines().collect(Collectors.toList());
-            }
-
-            int exitCode = process.waitFor();
-
-            if (exitCode != 0) {
-                // Capture error output
-                String errorOutput;
-                try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
-                    errorOutput = errorReader.lines().collect(Collectors.joining("\n"));
-                }
-                throw new LoginException("Script exited with code " + exitCode + ": " + errorOutput);
-            }
-
-            if (outputLines.size() < 3) {
-                throw new LoginException("Internal error.");
-            }
-
-            // Get last 3 lines
-            List<String> filePaths = outputLines.subList(outputLines.size() - 3, outputLines.size());
-
-            File startFile = new File(filePaths.get(0));
-            File modulesFile = new File(filePaths.get(1));
-            File examsFile = new File(filePaths.get(2));
-            DataResponse dataResponse = new DataResponse(
-                    parseExamResults(Jsoup.parse(examsFile, "UTF-8", STUDIDB_BASE_URL)),
-                    parseUserInfo(Jsoup.parse(startFile, "UTF-8", STUDIDB_BASE_URL)),
-                    parseUserModule(Jsoup.parse(modulesFile, "UTF-8", STUDIDB_BASE_URL))
+            return new DataResponse(
+                    parseExamResults(documents.examResults()),
+                    parseUserInfo(documents.userInfo()),
+                    parseUserModule(documents.userSemester())
             );
-
-            startFile.delete();
-            modulesFile.delete();
-            examsFile.delete();
-
-            return dataResponse;
-
         } catch (Exception e) {
-            throw new RuntimeException("Failed to execute script", e);
+            throw new LoginException("Failed to parse response from studidb server: " + e.getMessage());
         }
     }
 
@@ -170,16 +92,11 @@ public class StudidbService {
 
         String infoText = infoRow.text();
         // Example text: "Sie studieren zur Zeit Bachelor, 1-Fach Informatik im 6. Semester."
-
-        // Extract the study major and semester using regular expressions
         String major = "";
         int semester = 0;
 
-        // Extract study major
         if (infoText.contains("studieren") && infoText.contains("im")) {
             major = infoText.substring(infoText.indexOf("Zeit") + 5, infoText.indexOf("im")).trim();
-
-            // Extract semester
             String semesterStr = infoText.substring(infoText.indexOf("im") + 3, infoText.indexOf("Semester")).trim();
             if (semesterStr.endsWith(".")) {
                 semesterStr = semesterStr.substring(0, semesterStr.length() - 1);
@@ -191,7 +108,6 @@ public class StudidbService {
             }
         }
 
-        // Parse enrolled modules
         List<Module> enrolledModules = parseEnrolledModules(doc);
 
         return new UserSemester(semester, major, enrolledModules);
@@ -200,7 +116,6 @@ public class StudidbService {
     private List<Module> parseEnrolledModules(Document doc) {
         List<Module> modules = new ArrayList<>();
 
-        // Select the table containing enrolled modules
         Element enrolledTable = doc.selectFirst("table#angemeldet");
         if (enrolledTable == null) return modules;
 
