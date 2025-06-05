@@ -77,25 +77,9 @@ const DashboardView = () => {
             case SORT_OPTIONS.WORST:
                 return sortedGrades.sort((a, b) => b.grade - a.grade);
             case SORT_OPTIONS.LATEST:
-                return sortedGrades.sort((a, b) => {
-                    // Extract year and semester for sorting
-                    const getTermValue = (term) => {
-                        const year = parseInt(term.match(/\d{2}\/\d{2}|\d{2}/)[0].split('/')[0]) + 2000;
-                        const isSummer = term.includes('SS');
-                        return year * 10 + (isSummer ? 1 : 0);
-                    };
-                    return getTermValue(b.semester) - getTermValue(a.semester);
-                });
+                return sortBySemester(sortedGrades, x => x.semester,"desc");
             case SORT_OPTIONS.OLDEST:
-                return sortedGrades.sort((a, b) => {
-                    // Extract year and semester for sorting
-                    const getTermValue = (term) => {
-                        const year = parseInt(term.match(/\d{2}\/\d{2}|\d{2}/)[0].split('/')[0]) + 2000;
-                        const isSummer = term.includes('SS');
-                        return year * 10 + (isSummer ? 1 : 0);
-                    };
-                    return getTermValue(a.semester) - getTermValue(b.semester);
-                });
+                return sortBySemester(sortedGrades, x => x.semester,"asc");
             case SORT_OPTIONS.HIGHEST_ECTS:
                 return sortedGrades.sort((a, b) => b.ects - a.ects);
             default:
@@ -241,7 +225,7 @@ const DashboardView = () => {
                     <div className="overflow-hidden">
                         {topGrades.map((grade, index) => (
                             <div
-                                key={grade.moduleCode}
+                                key={grade.moduleCode + index}
                                 className={`flex justify-between items-center py-3 ${
                                     index !== topGrades.length - 1 ? 'border-b border-gray-200' : ''
                                 }`}

@@ -118,55 +118,108 @@ export const Layout = ({ children }) => {
                 </div>
 
                 <nav className="flex-1 space-y-4">
-                    <Link to="/" className={`flex items-center ${isHovered ? 'gap-2' : 'justify-center'} p-4 rounded-xl transition-all duration-300 
-            ${activeSection === 'dashboard'
-                        ? 'bg-blue-50 text-blue-600 shadow-[inset_4px_4px_8px_#d1d1d1,_inset_-4px_-4px_8px_#ffffff]'
-                        : 'bg-gray-100 shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff] hover:shadow-[2px_2px_5px_#d1d1d1,_-2px_-2px_5px_#ffffff]'}`
-                    }>
-                        <TrendingUp size={isHovered ? 20 : 24} />
-                        {isHovered && <span className="whitespace-nowrap transition-opacity duration-500 ease-in-out">Dashboard</span>}
+                    <Link
+                        to="/"
+                        className={`flex items-center justify-start p-4 rounded-xl transition-all duration-300 overflow-hidden
+                            ${activeSection === "dashboard"
+                            ? 'bg-blue-50 text-blue-600 shadow-[inset_4px_4px_8px_#d1d1d1,_inset_-4px_-4px_8px_#ffffff]'
+                            : 'bg-gray-100 shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff] hover:shadow-[2px_2px_5px_#d1d1d1,_-2px_-2px_5px_#ffffff]'}`}
+                    >
+                        <div className="min-w-[22px] flex justify-center items-center transition-transform duration-300">
+                            <TrendingUp size={isHovered ? "24" : "20"} />
+                        </div>
+                        <span
+                            className={`ml-2 whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out
+                                        ${isHovered ? 'opacity-100 max-w-xs' : 'opacity-0 max-w-0'}`}
+                        >
+                            Dashboard
+                        </span>
                     </Link>
-                    <Link to="/grades" className={`flex items-center overflow-hidden ${isHovered ? 'gap-2' : 'justify-center'} p-4 rounded-xl transition-all duration-300 
-            ${activeSection === 'Notenübersicht'
-                        ? 'bg-blue-50 text-blue-600 shadow-[inset_4px_4px_8px_#d1d1d1,_inset_-4px_-4px_8px_#ffffff]'
-                        : 'bg-gray-100 shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff] hover:shadow-[2px_2px_5px_#d1d1d1,_-2px_-2px_5px_#ffffff]'}`
-                    }>
-                        <Award size={isHovered ? 20 : 24} />
-                        {isHovered && <span className="whitespace-nowrap transition-opacity duration-500 ease-in-out">Notenübersicht</span>}
+                    <Link
+                        to="/grades"
+                        className={`flex items-center justify-start p-4 rounded-xl transition-all duration-300 overflow-hidden
+                            ${activeSection === "Notenübersicht"
+                            ? 'bg-blue-50 text-blue-600 shadow-[inset_4px_4px_8px_#d1d1d1,_inset_-4px_-4px_8px_#ffffff]'
+                            : 'bg-gray-100 shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff] hover:shadow-[2px_2px_5px_#d1d1d1,_-2px_-2px_5px_#ffffff]'}`}
+                    >
+                        <div className="min-w-[22px] flex justify-center items-center transition-transform duration-300">
+                            <Award size={isHovered ? "24" : "20"} />
+                        </div>
+                        <span
+                            className={`ml-2 whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out
+                                        ${isHovered ? 'opacity-100 max-w-xs' : 'opacity-0 max-w-0'}`}
+                        >
+                            Notenübersicht
+                        </span>
                     </Link>
-                    <Link to="/calculator" className={`flex items-center ${isHovered ? 'gap-2' : 'justify-center'} p-4 rounded-xl transition-all duration-300 
-            ${activeSection === 'Notenrechner'
-                        ? 'bg-blue-50 text-blue-600 shadow-[inset_4px_4px_8px_#d1d1d1,_inset_-4px_-4px_8px_#ffffff]'
-                        : 'bg-gray-100 shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff] hover:shadow-[2px_2px_5px_#d1d1d1,_-2px_-2px_5px_#ffffff]'}`
-                    }>
-                        <Calculator size={isHovered ? 20 : 24} />
-                        {isHovered && <span className="whitespace-nowrap transition-opacity duration-500 ease-in-out">Notenrechner</span>}
+                    <Link
+                        to="/calculator"
+                        className={`flex items-center justify-start p-4 rounded-xl transition-all duration-300 overflow-hidden
+                            ${activeSection === "Notenrechner"
+                            ? 'bg-blue-50 text-blue-600 shadow-[inset_4px_4px_8px_#d1d1d1,_inset_-4px_-4px_8px_#ffffff]'
+                            : 'bg-gray-100 shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff] hover:shadow-[2px_2px_5px_#d1d1d1,_-2px_-2px_5px_#ffffff]'}`}
+                    >
+                        <div className="min-w-[22px] flex justify-center items-center transition-transform duration-300">
+                            <Calculator size={isHovered ? "24" : "20"} />
+                        </div>
+                        <span
+                            className={`ml-2 whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out
+                                        ${isHovered ? 'opacity-100 max-w-xs' : 'opacity-0 max-w-0'}`}
+                        >
+                            Notenrechner
+                        </span>
                     </Link>
-                    <Link to="/attendance" className={`flex items-center overflow-hidden ${isHovered ? 'gap-2' : 'justify-center'} p-4 rounded-xl transition-all duration-300 
-            ${activeSection === 'Belegte Modoule'
-                        ? 'bg-blue-50 text-blue-600 shadow-[inset_4px_4px_8px_#d1d1d1,_inset_-4px_-4px_8px_#ffffff]'
-                        : 'bg-gray-100 shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff] hover:shadow-[2px_2px_5px_#d1d1d1,_-2px_-2px_5px_#ffffff]'}`
-                    }>
-                        <Users size={isHovered ? 20 : 24} />
-                        {isHovered && <span className="whitespace-nowrap transition-opacity duration-500 ease-in-out">Belegte Module</span>}
+                    <Link
+                        to="/attendance"
+                        className={`flex items-center justify-start p-4 rounded-xl transition-all duration-300 overflow-hidden
+                            ${activeSection === "Belegte Modoule"
+                            ? 'bg-blue-50 text-blue-600 shadow-[inset_4px_4px_8px_#d1d1d1,_inset_-4px_-4px_8px_#ffffff]'
+                            : 'bg-gray-100 shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff] hover:shadow-[2px_2px_5px_#d1d1d1,_-2px_-2px_5px_#ffffff]'}`}
+                    >
+                        <div className="min-w-[22px] flex justify-center items-center transition-transform duration-300">
+                            <Users size={isHovered ? "24" : "20"} />
+                        </div>
+                        <span
+                            className={`ml-2 whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out
+                                        ${isHovered ? 'opacity-100 max-w-xs' : 'opacity-0 max-w-0'}`}
+                        >
+                            Belegte Module
+                        </span>
                     </Link>
-                    <Link to="/profile" className={`flex items-center overflow-hidden ${isHovered ? 'gap-2' : 'justify-center'} p-4 rounded-xl transition-all duration-300 
-            ${activeSection === 'Profil'
-                        ? 'bg-blue-50 text-blue-600 shadow-[inset_4px_4px_8px_#d1d1d1,_inset_-4px_-4px_8px_#ffffff]'
-                        : 'bg-gray-100 shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff] hover:shadow-[2px_2px_5px_#d1d1d1,_-2px_-2px_5px_#ffffff]'}`
-                    }>
-                        <User size={isHovered ? 20 : 24} />
-                        {isHovered && <span className="whitespace-nowrap transition-opacity duration-500 ease-in-out">Profil</span>}
+                    <Link
+                        to="/profile"
+                        className={`flex items-center justify-start p-4 rounded-xl transition-all duration-300 overflow-hidden
+                            ${activeSection === "Profil"
+                            ? 'bg-blue-50 text-blue-600 shadow-[inset_4px_4px_8px_#d1d1d1,_inset_-4px_-4px_8px_#ffffff]'
+                            : 'bg-gray-100 shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff] hover:shadow-[2px_2px_5px_#d1d1d1,_-2px_-2px_5px_#ffffff]'}`}
+                    >
+                        <div className="min-w-[22px] flex justify-center items-center transition-transform duration-300">
+                            <User size={isHovered ? "24" : "20"} />
+                        </div>
+                        <span
+                            className={`ml-2 whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out
+                                        ${isHovered ? 'opacity-100 max-w-xs' : 'opacity-0 max-w-0'}`}
+                        >
+                            Profil
+                        </span>
                     </Link>
                 </nav>
 
                 <div className="mt-auto pt-6">
                     <button
                         onClick={handleLogout}
-                        className={`flex items-center ${isHovered ? 'gap-2' : 'justify-center'} p-4 rounded-xl transition-all duration-300 w-full text-red-500 bg-gray-100 shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff]`}
+                        className={`flex items-center justify-start overflow-hidden p-4 rounded-xl transition-all duration-300 w-full text-red-500 bg-gray-100
+                                    shadow-[5px_5px_10px_#d1d1d1,_-5px_-5px_10px_#ffffff]`}
                     >
-                        <LogOut size={isHovered ? 20 : 24} />
-                        {isHovered && <span className="whitespace-nowrap transition-opacity duration-500 ease-in-out">Logout</span>}
+                        <div className="min-w-[22px] flex justify-center items-center transition-transform duration-300">
+                            <LogOut size={isHovered ? "24" : "20"} />
+                        </div>
+                        <span
+                            className={`ml-2 whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out
+                                        ${isHovered ? 'opacity-100 max-w-xs' : 'opacity-0 max-w-0'}`}
+                        >
+                            Logout
+                        </span>
                     </button>
                 </div>
             </aside>
