@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public class StudidbScriptDataFetcher implements StudidbDataFetcher{
 
     @Value("${de.cau.studidbv2.dataScriptPath}")
-    private static String dataScriptPath;
+    private String dataScriptPath;
 
     private static final Logger LOG = LoggerFactory.getLogger(StudidbScriptDataFetcher.class);
 
